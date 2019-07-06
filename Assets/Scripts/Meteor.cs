@@ -1,14 +1,18 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+
 public class Meteor : MonoBehaviour
 {
+    public new Rigidbody2D rigidbody;
+
     void Start()
     {
-        Destroy(gameObject, 10f);
+        rigidbody = GetComponent<Rigidbody2D>();
+        Destroy(10);
     }
 
-    IEnumerator SpawnBulletNextFixedFrameCoroutine()
+    IEnumerator SpawnMeteorNextFixedFrameCoroutine()
     {
         yield return new WaitForFixedUpdate();
         Game.game.SpawnMeteor();
@@ -16,15 +20,24 @@ public class Meteor : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Player") Game.game.GameOver();
+        if (collision.CompareTag("Player")) Game.game.GameOver();
         else
         {
-            if (collision.tag != "Bullet") StartCoroutine(SpawnBulletNextFixedFrameCoroutine());
-            Game.game.DestroyObject(collision.transform);
+            collision.gameObject.GetComponent<Meteor>().Destroy(0);
+            if (collision.gameObject && collision.CompareTag("Bullet")) StartCoroutine(SpawnMeteorNextFixedFrameCoroutine());
         }
     }
-    void OnDestroy()
+
+    public async void Destroy(int waitTimeSec)
     {
-        Game.Bullets.Remove(GetComponent<Rigidbody2D>());
+        if (waitTimeSec != 0) await Task.Delay(waitTimeSec * 1000);
+
+        if (!this) return;
+
+        Game.game.PlayDeathParticle(transform.position);
+        Game.game.Movables.Remove(rigidbody);
+        Game.game.MeteorPool.Enqueue(gameObject);
+
+        gameObject.SetActive(false);
     }
 }

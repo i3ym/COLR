@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
 
     void Awake()
     {
-        if (name.Contains("Clone")) return;
+        if (name.Contains("Clone")) Destroy(this);
     }
     void Start()
     {
@@ -49,7 +49,7 @@ public class Player : MonoBehaviour
             DoShoot = false;
             yield return wfi;
 
-            Game.Shoot();
+            Game.game.Shoot();
             yield return wfs;
         }
     }

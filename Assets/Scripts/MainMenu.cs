@@ -14,13 +14,10 @@ public class MainMenu : MonoBehaviour
         {
             Field.SetActive(true);
             gameObject.SetActive(false);
+            Game.isPlaying = true;
 
             Game.Banner.Hide();
         });
         ExitButton.onClick.AddListener(Application.Quit);
-    }
-    void Update()
-    {
-
     }
 }

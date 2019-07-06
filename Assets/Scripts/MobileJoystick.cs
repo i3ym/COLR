@@ -73,7 +73,7 @@ public class MobileJoystick : MonoBehaviour
 
         Knob.anchoredPosition = new Vector2(diff.x, diff.y);
 
-        Vertical = Knob.anchoredPosition.y / transform.rect.height * 2f;
+        Vertical = Knob.anchoredPosition.y / transform.rect.height * 2f / 4f;
         Horizontal = Knob.anchoredPosition.x / transform.rect.width * 2f;
     }
 

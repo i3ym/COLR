@@ -5,6 +5,7 @@ public class OffScreen : MonoBehaviour
 {
     [SerializeField]
     MonoBehaviour ControlScript;
+    
     RectTransform shadowGO;
     new RectTransform transform;
     TextMeshProUGUI scoreText;
@@ -18,7 +19,7 @@ public class OffScreen : MonoBehaviour
         Destroy(shadowGO.GetComponent<OffScreen>());
         if (ControlScript != null) Destroy(shadowGO.GetComponent(ControlScript.GetType()));
     }
-    void Update() => scoreText.text = Game.Score.ToString();
+    void Update() => scoreText.text = Game.game.Score.ToString();
     void FixedUpdate()
     {
         if (Mathf.Abs(transform.anchoredPosition.y) > Mathf.Abs(transform.anchoredPosition.x))
@@ -35,7 +36,6 @@ public class OffScreen : MonoBehaviour
         shadowGO.anchoredPosition = transform.anchoredPosition;
         shadowGO.rotation = transform.rotation;
 
-        //TODO optimize (lol)
         if (transform.anchoredPosition.x > Game.canvasSize.x / 2) transform.anchoredPosition -= new Vector2(Game.canvasSize.x, 0f);
         else if (transform.anchoredPosition.x < -Game.canvasSize.x / 2) transform.anchoredPosition += new Vector2(Game.canvasSize.x, 0f);
 
