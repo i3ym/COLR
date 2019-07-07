@@ -21,7 +21,7 @@ public class Game : MonoBehaviour
     public Queue<Rigidbody2D> MeteorPool = new Queue<Rigidbody2D>();
     public Queue<Rigidbody2D> BulletPool = new Queue<Rigidbody2D>();
     Queue<ParticleSystem> DeathParticlePool = new Queue<ParticleSystem>();
-    Queue<ParticleSystem> DeathParticles = new Queue<ParticleSystem>();
+    List<ParticleSystem> DeathParticles = new List<ParticleSystem>();
 
     [SerializeField]
     Player player = null;
@@ -46,7 +46,7 @@ public class Game : MonoBehaviour
 
         Score = 0;
     }
-    
+
     void Start()
     {
         Camera = GetComponent<Camera>();
@@ -60,7 +60,7 @@ public class Game : MonoBehaviour
 
     [Conditional("DEBUG")]
     void Update() => Time.timeScale = TimeScale;
-    
+
     void FixedUpdate()
     {
         if (isPlaying)
@@ -74,7 +74,7 @@ public class Game : MonoBehaviour
     {
         const string banner = "ca-app-pub-6291991022802883/2598907369";
         Banner = new BannerView(banner, AdSize.Banner, AdPosition.Top);
-        AdRequest request = new AdRequest.Builder().AddTestDevice(AdRequest.TestDeviceSimulator).AddTestDevice("B6994A4369B1E37C").Build();
+        AdRequest request = new AdRequest.Builder().Build();
         Banner.LoadAd(request);
     }
 
@@ -100,7 +100,7 @@ public class Game : MonoBehaviour
         PlayDeathParticle(player.transform.position);
         Destroy(player.gameObject);
     }
-    
+
     public void PlayDeathParticle(Vector2 position)
     {
         ParticleSystem dp;
@@ -112,9 +112,11 @@ public class Game : MonoBehaviour
 
         dp.transform.parent = gamePlaceholder;
         dp.transform.position = position;
+
+        dp.Clear();
         dp.Play();
 
-        DeathParticles.Enqueue(dp);
+        DeathParticles.Add(dp);
     }
 
     public void Shoot()
@@ -129,7 +131,7 @@ public class Game : MonoBehaviour
         bullet.transform.position = Player.transform.position + Player.transform.up / 40f;
         Movables.Add(bullet, Player.transform.up / 20f);
     }
-    
+
     public void RestartGameIfNeeded()
     {
         if (!isPlaying) SceneManager.LoadScene(0);
@@ -147,7 +149,7 @@ public class Game : MonoBehaviour
             yield return new WaitForSeconds(Random.value / 2f);
         }
     }
-    
+
     public void SpawnMeteor()
     {
         if (!isPlaying) return;
@@ -172,12 +174,13 @@ public class Game : MonoBehaviour
         (meteor.transform as RectTransform).anchoredPosition = spawnPos;
 
         Vector2 dirToPlayer = meteor.transform.position - Player.transform.position;
+        dirToPlayer = dirToPlayer.normalized;
         dirToPlayer.x += Random.value * 4f - 2f;
         dirToPlayer.y += Random.value * 4f - 2f;
 
         Movables.Add(meteor, -dirToPlayer.normalized / 30f);
     }
-    
+
     public async void SpawnMeteorNextFrame()
     {
         await Task.Delay((int) (Time.fixedDeltaTime * 1000f));
@@ -191,7 +194,13 @@ public class Game : MonoBehaviour
         while (true)
         {
             while (DeathParticles.Count == 0) yield return wff;
-            if (!DeathParticles.Peek().IsAlive()) DeathParticlePool.Enqueue(DeathParticles.Dequeue());
+
+            foreach (var particle in DeathParticles.ToArray())
+                if (!particle.isPlaying)
+                {
+                    DeathParticlePool.Enqueue(particle);
+                    DeathParticles.Remove(particle);
+                }
 
             yield return wff;
         }

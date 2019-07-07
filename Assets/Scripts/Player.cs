@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
         Destroy(gameObject.GetComponent<PolygonCollider2D>());
 #endif
     }
-    
+
     void Start()
     {
         Physics2D.IgnoreLayerCollision(10, 11);
@@ -38,7 +38,7 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space)) Game.game.RestartGameIfNeeded();
     }
-    
+
     void FixedUpdate()
     {
         MobileJoystickInput();
@@ -61,12 +61,13 @@ public class Player : MonoBehaviour
     }
 
     public void Shoot() => DoShoot = true;
-    
+
     void MovePlayer(float forward, float rotation)
     {
         if (!isFluidControls)
         {
-            rigidbody.MovePosition(transform.position + transform.up * forward / 8f);
+            transform.anchoredPosition += (Vector2) transform.up * forward * 50f;
+            rigidbody.MovePosition(transform.position);
             rigidbody.rotation += rotation * 6f;
         }
         else
@@ -77,7 +78,7 @@ public class Player : MonoBehaviour
     }
 
     void MobileJoystickInput() => MovePlayer(Joystick.Vertical, -Joystick.Horizontal);
-    
+
     void MobileScreenInput()
     {
         var pos = Game.Camera.ScreenToViewportPoint(Input.mousePosition);
@@ -100,7 +101,7 @@ public class Player : MonoBehaviour
         if (isFluidControls) MovePlayer(move / 5f, rotate);
         else MovePlayer(move / 5f, rotate);
     }
-    
+
     void PCInput()
     {
         if (isFluidControls) MovePlayer(Input.GetAxis(Vertical), -Input.GetAxis(Horizontal));
