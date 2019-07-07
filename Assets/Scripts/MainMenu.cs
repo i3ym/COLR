@@ -18,6 +18,7 @@ public class MainMenu : MonoBehaviour
 
             Game.Banner.Hide();
         });
+        
         ExitButton.onClick.AddListener(Application.Quit);
 
         OffEffectsButton.onClick.AddListener(() =>

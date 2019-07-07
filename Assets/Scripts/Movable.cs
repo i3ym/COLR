@@ -7,6 +7,7 @@ public abstract class Movable : MonoBehaviour
     public new Rigidbody2D rigidbody;
 
     void Start() => rigidbody = GetComponent<Rigidbody2D>();
+   
     void OnEnable() => StartCoroutine(DestroyCoroutine(10));
 
     protected abstract void OnTriggerEnter2D(Collider2D collision);

@@ -46,6 +46,7 @@ public class Game : MonoBehaviour
 
         Score = 0;
     }
+    
     void Start()
     {
         Camera = GetComponent<Camera>();
@@ -59,6 +60,7 @@ public class Game : MonoBehaviour
 
     [Conditional("DEBUG")]
     void Update() => Time.timeScale = TimeScale;
+    
     void FixedUpdate()
     {
         if (isPlaying)

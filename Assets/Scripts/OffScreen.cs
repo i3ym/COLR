@@ -19,7 +19,9 @@ public class OffScreen : MonoBehaviour
         Destroy(shadowGO.GetComponent<OffScreen>());
         if (ControlScript != null) Destroy(shadowGO.GetComponent(ControlScript.GetType()));
     }
+    
     void Update() => scoreText.text = Game.game.Score.ToString();
+    
     void FixedUpdate()
     {
         if (Mathf.Abs(transform.anchoredPosition.y) > Mathf.Abs(transform.anchoredPosition.x))
