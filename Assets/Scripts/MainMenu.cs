@@ -6,7 +6,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField]
     GameObject Field;
     [SerializeField]
-    Button StartGameButton = null, ExitButton = null;
+    Button StartGameButton = null, ExitButton = null, OffEffectsButton = null;
 
     void Start()
     {
@@ -19,5 +19,10 @@ public class MainMenu : MonoBehaviour
             Game.Banner.Hide();
         });
         ExitButton.onClick.AddListener(Application.Quit);
+
+        OffEffectsButton.onClick.AddListener(() =>
+        {
+            Destroy(Game.Camera.gameObject.GetComponent<UnityEngine.Rendering.PostProcessing.PostProcessLayer>());
+        });
     }
 }

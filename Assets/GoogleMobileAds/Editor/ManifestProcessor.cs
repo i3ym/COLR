@@ -14,8 +14,9 @@ using UnityEditor.Callbacks;
 using UnityEngine;
 
 using GoogleMobileAds.Editor;
+using UnityEditor.Build.Reporting;
 
-public class ManifestProcessor : IPreprocessBuild
+public class ManifestProcessor : IPreprocessBuildWithReport
 {
     private const string META_AD_MANAGER_APP = "com.google.android.gms.ads.AD_MANAGER_APP";
 
@@ -28,7 +29,7 @@ public class ManifestProcessor : IPreprocessBuild
 
     public int callbackOrder { get { return 0; } }
 
-    public void OnPreprocessBuild(BuildTarget target, string path)
+    public void OnPreprocessBuild(BuildReport report)
     {
         string manifestPath = Path.Combine(
                 Application.dataPath, "Plugins/Android/GoogleMobileAdsPlugin/AndroidManifest.xml");

@@ -104,8 +104,6 @@ public class Game : MonoBehaviour
 
         dp.transform.parent = gamePlaceholder;
         dp.transform.position = position;
-
-        dp.Stop();
         dp.Play();
 
         DeathParticles.Enqueue(dp);
@@ -113,6 +111,7 @@ public class Game : MonoBehaviour
 
     public GameObject Shoot()
     {
+        // TODO bullet pool
         var pos = Player.transform.position + Player.transform.up / 40f;
 
         GameObject bullet = Instantiate(game.BulletPrefab);
