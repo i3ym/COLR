@@ -19,7 +19,8 @@ public class Game : MonoBehaviour
 
     int _score = 0;
     public Dictionary<Rigidbody2D, Vector2> Movables = new Dictionary<Rigidbody2D, Vector2>();
-    public Queue<GameObject> MeteorPool = new Queue<GameObject>();
+    public Queue<Rigidbody2D> MeteorPool = new Queue<Rigidbody2D>();
+    public Queue<Rigidbody2D> BulletPool = new Queue<Rigidbody2D>();
     Queue<ParticleSystem> DeathParticlePool = new Queue<ParticleSystem>();
     Queue<ParticleSystem> DeathParticles = new Queue<ParticleSystem>();
 
@@ -115,16 +116,17 @@ public class Game : MonoBehaviour
         DeathParticles.Enqueue(dp);
     }
 
-    public GameObject Shoot()
+    public void Shoot()
     {
-        // TODO bullet pool
-        var pos = Player.transform.position + Player.transform.up / 40f;
+        Rigidbody2D bullet;
+        if (BulletPool.Count == 0) bullet = Instantiate(game.BulletPrefab).GetComponent<Rigidbody2D>();
+        else bullet = BulletPool.Dequeue();
 
-        GameObject bullet = Instantiate(game.BulletPrefab);
+        bullet.gameObject.SetActive(true);
+
         bullet.transform.SetParent(game.gamePlaceholder, false);
-        bullet.transform.position = pos;
-        Movables.Add(bullet.GetComponent<Rigidbody2D>(), Player.transform.up / 20f);
-        return bullet;
+        bullet.transform.position = Player.transform.position + Player.transform.up / 40f;
+        Movables.Add(bullet, Player.transform.up / 20f);
     }
     public void RestartGameIfNeeded()
     {
@@ -159,18 +161,18 @@ public class Game : MonoBehaviour
             spawnPos.y = (Random.value - .5f) * canvasSize.y;
         }
 
-        GameObject meteor;
-        if (MeteorPool.Count == 0) meteor = Instantiate(meteorPrefab, game.gamePlaceholder);
+        Rigidbody2D meteor;
+        if (MeteorPool.Count == 0) meteor = Instantiate(meteorPrefab, game.gamePlaceholder).GetComponent<Rigidbody2D>();
         else meteor = MeteorPool.Dequeue();
 
-        meteor.SetActive(true);
+        meteor.gameObject.SetActive(true);
         (meteor.transform as RectTransform).anchoredPosition = spawnPos;
 
         Vector2 dirToPlayer = meteor.transform.position - Player.transform.position;
         dirToPlayer.x += Random.value * 4f - 2f;
         dirToPlayer.y += Random.value * 4f - 2f;
 
-        Movables.Add(meteor.GetComponent<Rigidbody2D>(), -dirToPlayer.normalized / 30f);
+        Movables.Add(meteor, -dirToPlayer.normalized / 30f);
     }
     public async void SpawnMeteorNextFrame()
     {

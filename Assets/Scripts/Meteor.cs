@@ -25,6 +25,7 @@ public class Meteor : Movable
     public override void Death()
     {
         base.Death();
+        Game.game.MeteorPool.Enqueue(rigidbody);
         Game.game.PlayDeathParticle(transform.position);
     }
 }

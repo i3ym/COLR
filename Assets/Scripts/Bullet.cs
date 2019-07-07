@@ -9,4 +9,10 @@ public class Bullet : Movable
         collision.gameObject.GetComponent<Meteor>().Death();
         Death();
     }
+
+    public override void Death()
+    {
+        base.Death();
+        Game.game.BulletPool.Enqueue(rigidbody);
+    }
 }

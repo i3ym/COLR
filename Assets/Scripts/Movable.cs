@@ -21,7 +21,6 @@ public abstract class Movable : MonoBehaviour
         StopAllCoroutines();
 
         Game.game.Movables.Remove(rigidbody);
-        Game.game.MeteorPool.Enqueue(gameObject);
 
         gameObject.SetActive(false);
     }
