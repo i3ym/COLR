@@ -51,23 +51,16 @@ public class MobileJoystick : MonoBehaviour
         entry.eventID = EventTriggerType.PointerUp;
         entry.callback.AddListener((data) => StopAllCoroutines());
         ShootTrigger.triggers.Add(entry);
-
-        var pos = transform.position;
-        transform.anchorMax = transform.anchorMin = transform.pivot = Vector2.zero;
-        transform.position = pos;
-        transform.anchoredPosition -= new Vector2(transform.rect.width, 0f);
     }
 
     void Update()
     {
         if (!Dragging) return;
 
-        Vector2 pos = Game.Camera.ScreenToViewportPoint(Input.mousePosition);
-
-        pos.x *= Game.game.gamePlaceholder.rect.width;
-        pos.y *= Game.game.gamePlaceholder.rect.height;
+        Vector2 pos = (Vector2) Game.Camera.ScreenToViewportPoint(Input.mousePosition) * Game.game.gamePlaceholder.rect.size;
 
         pos -= transform.anchoredPosition;
+        pos.x -= Game.game.gamePlaceholder.rect.width - transform.rect.width;
         pos -= transform.rect.size / 2f;
 
         if (pos.x > transform.rect.width / 2f) pos.x = transform.rect.width / 2f;
