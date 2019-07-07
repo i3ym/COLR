@@ -12,7 +12,6 @@ public class Game : MonoBehaviour
     public static Game game;
     public static Player Player;
     public static Camera Camera;
-    public static Vector2 canvasSize;
     public int Score { get => _score; set { _score = value; game.scoreText.text = value.ToString(); } }
     public static bool isPlaying;
     public static BannerView Banner;
@@ -52,7 +51,6 @@ public class Game : MonoBehaviour
         Camera = GetComponent<Camera>();
         Player = player;
 
-        canvasSize = gamePlaceholder.rect.size;
         StartCoroutine(SpawnMeteorsCoroutine());
         StartCoroutine(RemoveParticlesCoroutine());
 
@@ -100,6 +98,7 @@ public class Game : MonoBehaviour
         PlayDeathParticle(player.transform.position);
         Destroy(player.gameObject);
     }
+    
     public void PlayDeathParticle(Vector2 position)
     {
         ParticleSystem dp;
@@ -128,6 +127,7 @@ public class Game : MonoBehaviour
         bullet.transform.position = Player.transform.position + Player.transform.up / 40f;
         Movables.Add(bullet, Player.transform.up / 20f);
     }
+    
     public void RestartGameIfNeeded()
     {
         if (!isPlaying) SceneManager.LoadScene(0);
@@ -145,6 +145,7 @@ public class Game : MonoBehaviour
             yield return new WaitForSeconds(Random.value / 2f);
         }
     }
+    
     public void SpawnMeteor()
     {
         if (!isPlaying) return;
@@ -152,13 +153,13 @@ public class Game : MonoBehaviour
         Vector2 spawnPos = new Vector2();
         if (Random.value >.5f)
         {
-            spawnPos.x = (Random.value - .5f) * canvasSize.x;
-            spawnPos.y = (Random.value >.5f ? -1f : 1f) * canvasSize.y / 2;
+            spawnPos.x = (Random.value - .5f) * gamePlaceholder.rect.size.x;
+            spawnPos.y = (Random.value >.5f ? -1f : 1f) * gamePlaceholder.rect.size.y / 2;
         }
         else
         {
-            spawnPos.x = (Random.value >.5f ? -1f : 1f) * canvasSize.x / 2;
-            spawnPos.y = (Random.value - .5f) * canvasSize.y;
+            spawnPos.x = (Random.value >.5f ? -1f : 1f) * gamePlaceholder.rect.size.x / 2;
+            spawnPos.y = (Random.value - .5f) * gamePlaceholder.rect.size.y;
         }
 
         Rigidbody2D meteor;
@@ -174,6 +175,7 @@ public class Game : MonoBehaviour
 
         Movables.Add(meteor, -dirToPlayer.normalized / 30f);
     }
+    
     public async void SpawnMeteorNextFrame()
     {
         await Task.Delay((int) (Time.fixedDeltaTime * 1000f));

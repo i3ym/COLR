@@ -5,7 +5,7 @@ public class OffScreen : MonoBehaviour
 {
     [SerializeField]
     MonoBehaviour ControlScript;
-    
+
     RectTransform shadowGO;
     new RectTransform transform;
     TextMeshProUGUI scoreText;
@@ -15,7 +15,7 @@ public class OffScreen : MonoBehaviour
         transform = GetComponent<RectTransform>();
 
         shadowGO = Instantiate(gameObject, transform.parent).GetComponent<RectTransform>();
-        scoreText = shadowGO.GetChild(1).GetComponent<TextMeshProUGUI>();
+        scoreText = shadowGO.GetChild(0).GetComponent<TextMeshProUGUI>();
         Destroy(shadowGO.GetComponent<OffScreen>());
         if (ControlScript != null) Destroy(shadowGO.GetComponent(ControlScript.GetType()));
     }
@@ -36,11 +36,11 @@ public class OffScreen : MonoBehaviour
         shadowGO.anchoredPosition = transform.anchoredPosition;
         shadowGO.rotation = transform.rotation;
 
-        if (transform.anchoredPosition.x > Game.canvasSize.x / 2) transform.anchoredPosition -= new Vector2(Game.canvasSize.x, 0f);
-        else if (transform.anchoredPosition.x < -Game.canvasSize.x / 2) transform.anchoredPosition += new Vector2(Game.canvasSize.x, 0f);
+        if (transform.anchoredPosition.x > Game.game.gamePlaceholder.rect.size.x / 2) transform.anchoredPosition -= new Vector2(Game.game.gamePlaceholder.rect.size.x, 0f);
+        else if (transform.anchoredPosition.x < -Game.game.gamePlaceholder.rect.size.x / 2) transform.anchoredPosition += new Vector2(Game.game.gamePlaceholder.rect.size.x, 0f);
 
-        if (transform.anchoredPosition.y > Game.canvasSize.y / 2) transform.anchoredPosition -= new Vector2(0f, Game.canvasSize.y);
-        else if (transform.anchoredPosition.y < -Game.canvasSize.y / 2) transform.anchoredPosition += new Vector2(0f, Game.canvasSize.y);
+        if (transform.anchoredPosition.y > Game.game.gamePlaceholder.rect.size.y / 2) transform.anchoredPosition -= new Vector2(0f, Game.game.gamePlaceholder.rect.size.y);
+        else if (transform.anchoredPosition.y < -Game.game.gamePlaceholder.rect.size.y / 2) transform.anchoredPosition += new Vector2(0f, Game.game.gamePlaceholder.rect.size.y);
     }
 
     void OnDestroy()

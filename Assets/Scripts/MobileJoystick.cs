@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class MobileJoystick : MonoBehaviour
 {
@@ -15,17 +14,32 @@ public class MobileJoystick : MonoBehaviour
     EventTrigger Trigger;
     new RectTransform transform;
     bool Dragging = false;
+    int CurrentTouchID = -1;
+    Vector2 TouchPos;
 
     void Start()
     {
         transform = gameObject.transform as RectTransform;
+        TouchPos = Game.Camera.WorldToScreenPoint(Knob.position);
 
         Trigger = GetComponent<EventTrigger>();
         if (Trigger == null) Trigger = gameObject.AddComponent<EventTrigger>();
 
         var entry = new EventTrigger.Entry();
         entry.eventID = EventTriggerType.PointerDown;
-        entry.callback.AddListener((data) => Dragging = true);
+        entry.callback.AddListener((data) =>
+        {
+            Dragging = true;
+            TouchPos = ((PointerEventData) data).position;
+        });
+        Trigger.triggers.Add(entry);
+
+        entry = new EventTrigger.Entry();
+        entry.eventID = EventTriggerType.Drag;
+        entry.callback.AddListener((data) =>
+        {
+            if (Dragging) TouchPos = ((PointerEventData) data).position;
+        });
         Trigger.triggers.Add(entry);
 
         entry = new EventTrigger.Entry();
@@ -57,7 +71,7 @@ public class MobileJoystick : MonoBehaviour
     {
         if (!Dragging) return;
 
-        Vector2 pos = (Vector2) Game.Camera.ScreenToViewportPoint(Input.mousePosition) * Game.game.gamePlaceholder.rect.size;
+        Vector2 pos = (Vector2) Game.Camera.ScreenToViewportPoint(TouchPos) * Game.game.gamePlaceholder.rect.size;
 
         pos -= transform.anchoredPosition;
         pos.x -= Game.game.gamePlaceholder.rect.width - transform.rect.width;
