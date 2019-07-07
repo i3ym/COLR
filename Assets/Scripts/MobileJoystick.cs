@@ -51,30 +51,35 @@ public class MobileJoystick : MonoBehaviour
         entry.eventID = EventTriggerType.PointerUp;
         entry.callback.AddListener((data) => StopAllCoroutines());
         ShootTrigger.triggers.Add(entry);
+
+        var pos = transform.position;
+        transform.anchorMax = transform.anchorMin = transform.pivot = Vector2.zero;
+        transform.position = pos;
+        transform.anchoredPosition -= new Vector2(transform.rect.width, 0f);
     }
 
     void Update()
     {
         if (!Dragging) return;
 
-        var pos = Game.Camera.ScreenToViewportPoint(Input.mousePosition);
+        Vector2 pos = Game.Camera.ScreenToViewportPoint(Input.mousePosition);
 
-        pos.x *= Screen.width * 2f;
-        pos.x -= Screen.width * 2f;
-        pos.y *= Screen.height * 2f;
+        pos.x *= Game.game.gamePlaceholder.rect.width;
+        pos.y *= Game.game.gamePlaceholder.rect.height;
 
-        var diff = (Vector2) pos - ((Vector2) transform.anchoredPosition + new Vector2(-transform.rect.width, transform.rect.height) / 2f);
+        pos -= transform.anchoredPosition;
+        pos -= transform.rect.size / 2f;
 
-        if (diff.x > transform.rect.width / 2f) diff.x = transform.rect.width / 2f;
-        else if (diff.x < -transform.rect.width / 2f) diff.x = -transform.rect.width / 2f;
+        if (pos.x > transform.rect.width / 2f) pos.x = transform.rect.width / 2f;
+        else if (pos.x < -transform.rect.width / 2f) pos.x = -transform.rect.width / 2f;
 
-        if (diff.y > transform.rect.height / 2f) diff.y = transform.rect.height / 2f;
-        else if (diff.y < -transform.rect.height / 2f) diff.y = -transform.rect.height / 2f;
+        if (pos.y > transform.rect.height / 2f) pos.y = transform.rect.height / 2f;
+        else if (pos.y < -transform.rect.height / 2f) pos.y = -transform.rect.height / 2f;
 
-        Knob.anchoredPosition = new Vector2(diff.x, diff.y);
+        Knob.anchoredPosition = new Vector2(pos.x, pos.y);
 
-        Vertical = Knob.anchoredPosition.y / transform.rect.height * 2f / 4f;
-        Horizontal = Knob.anchoredPosition.x / transform.rect.width * 2f;
+        Vertical = pos.y / transform.rect.height * 2f / 4f;
+        Horizontal = pos.x / transform.rect.width * 2f;
     }
 
     IEnumerator ShootCoroutine()
