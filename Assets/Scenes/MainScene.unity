@@ -327,11 +327,6 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 40
       objectReference: {fileID: 0}
-    - target: {fileID: 4261733331518866582, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6fd27594049a0547ca62470dbf73d690, type: 3}
 --- !u!1 &203139556
@@ -1537,10 +1532,10 @@ RectTransform:
   m_Father: {fileID: 1224459835}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 880.0641, y: 150}
+  m_SizeDelta: {x: 980, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1193054923
 MonoBehaviour:

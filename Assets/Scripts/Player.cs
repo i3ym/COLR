@@ -16,6 +16,10 @@ public class Player : MonoBehaviour
     void Awake()
     {
         if (name.Contains("Clone")) Destroy(this);
+
+#if DEBUG
+        Destroy(gameObject.GetComponent<PolygonCollider2D>());
+#endif
     }
     void Start()
     {

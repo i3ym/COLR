@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     [SerializeField]
-    GameObject Field;
+    GameObject Field = null;
     [SerializeField]
     Button StartGameButton = null, ExitButton = null, OffEffectsButton = null;
 
