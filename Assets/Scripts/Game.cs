@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using GoogleMobileAds.Api;
 using TMPro;
 using UnityEngine;
@@ -30,6 +32,8 @@ public class Game : MonoBehaviour
     [SerializeField]
     TextMeshProUGUI scoreText = null;
 
+    public float TimeScale = 1f;
+
     void Awake()
     {
         game = this;
@@ -54,6 +58,8 @@ public class Game : MonoBehaviour
         CreateAdBanner();
     }
 
+    [Conditional("DEBUG")]
+    void Update() => Time.timeScale = TimeScale;
     void FixedUpdate()
     {
         if (isPlaying)
@@ -165,6 +171,11 @@ public class Game : MonoBehaviour
         dirToPlayer.y += Random.value * 4f - 2f;
 
         Movables.Add(meteor.GetComponent<Rigidbody2D>(), -dirToPlayer.normalized / 30f);
+    }
+    public async void SpawnMeteorNextFrame()
+    {
+        await Task.Delay((int) (Time.fixedDeltaTime * 1000f));
+        SpawnMeteor();
     }
 
     IEnumerator RemoveParticlesCoroutine()
