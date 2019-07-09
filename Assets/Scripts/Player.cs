@@ -18,7 +18,7 @@ public class Player : MonoBehaviour
         if (name.Contains("Clone")) Destroy(this);
 
 #if DEBUG
-        Destroy(gameObject.GetComponent<PolygonCollider2D>());
+        gameObject.GetComponent<PolygonCollider2D>().enabled = false;
 #endif
     }
 

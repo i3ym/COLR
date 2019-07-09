@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
-using GoogleMobileAds.Api;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,8 +13,7 @@ public class Game : MonoBehaviour
     public static Player Player;
     public static Camera Camera;
     public int Score { get => _score; set { _score = value; game.scoreText.text = value.ToString(); } }
-    public static bool isPlaying;
-    public static BannerView Banner;
+    public static bool isPlaying = false;
 
     int _score = 0;
     public Dictionary<Rigidbody2D, Vector2> Movables = new Dictionary<Rigidbody2D, Vector2>();
@@ -31,8 +30,13 @@ public class Game : MonoBehaviour
     GameObject BulletPrefab = null, meteorPrefab = null, DeathParticlePrefab = null;
     [SerializeField]
     TextMeshProUGUI scoreText = null;
+    [SerializeField]
+    RectTransform ParticlesParent = null, MeteorsParent = null;
 
     public float TimeScale = 1f;
+    Vector2 MaxWorldPos;
+
+    Vector2 _pos;
 
     void Awake()
     {
@@ -42,20 +46,19 @@ public class Game : MonoBehaviour
         MeteorPool.Clear();
         DeathParticlePool.Clear();
         DeathParticles.Clear();
-        isPlaying = false;
 
         Score = 0;
     }
 
     void Start()
     {
-        Camera = GetComponent<Camera>();
+        GetComponent<Canvas>().worldCamera = Camera = Camera.main;
         Player = player;
+
+        MaxWorldPos = Camera.ViewportToWorldPoint(Vector3.one);
 
         StartCoroutine(SpawnMeteorsCoroutine());
         StartCoroutine(RemoveParticlesCoroutine());
-
-        CreateAdBanner();
     }
 
     [Conditional("DEBUG")]
@@ -66,16 +69,20 @@ public class Game : MonoBehaviour
         if (isPlaying)
         {
             Score++;
-            foreach (var movable in Movables) movable.Key.MovePosition((Vector2) movable.Key.position + movable.Value);
-        }
-    }
+            foreach (var movable in Movables.ToArray())
+            {
+                _pos = movable.Key.transform.position;
+                if (Mathf.Abs(_pos.x) > MaxWorldPos.x + 2f || Mathf.Abs(_pos.y) > MaxWorldPos.y + 2f)
+                {
+                    Destroy(movable.Key.gameObject);
+                    Movables.Remove(movable.Key);
 
-    void CreateAdBanner()
-    {
-        const string banner = "ca-app-pub-6291991022802883/2598907369";
-        Banner = new BannerView(banner, AdSize.Banner, AdPosition.Top);
-        AdRequest request = new AdRequest.Builder().Build();
-        Banner.LoadAd(request);
+                    continue;
+                }
+
+                movable.Key.MovePosition((Vector2) movable.Key.position + movable.Value);
+            }
+        }
     }
 
     public void GameOver()
@@ -103,9 +110,15 @@ public class Game : MonoBehaviour
 
     public void PlayDeathParticle(Vector2 position)
     {
+        if (Mathf.Abs(position.x) > MaxWorldPos.x || Mathf.Abs(position.y) > MaxWorldPos.y) return;
+
         ParticleSystem dp;
 
-        if (DeathParticlePool.Count == 0) dp = Instantiate(DeathParticlePrefab, game.gamePlaceholder).GetComponent<ParticleSystem>();
+        if (DeathParticlePool.Count == 0)
+        {
+            dp = Instantiate(DeathParticlePrefab, game.gamePlaceholder).GetComponent<ParticleSystem>();
+            dp.transform.SetParent(ParticlesParent, true);
+        }
         else dp = DeathParticlePool.Dequeue();
 
         dp.gameObject.SetActive(true);
@@ -167,7 +180,11 @@ public class Game : MonoBehaviour
         }
 
         Rigidbody2D meteor;
-        if (MeteorPool.Count == 0) meteor = Instantiate(meteorPrefab, game.gamePlaceholder).GetComponent<Rigidbody2D>();
+        if (MeteorPool.Count == 0)
+        {
+            meteor = Instantiate(meteorPrefab, game.gamePlaceholder).GetComponent<Rigidbody2D>();
+            meteor.transform.SetParent(MeteorsParent, true);
+        }
         else meteor = MeteorPool.Dequeue();
 
         meteor.gameObject.SetActive(true);
