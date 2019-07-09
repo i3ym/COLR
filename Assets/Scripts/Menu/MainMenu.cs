@@ -21,7 +21,7 @@ public class MainMenu : MonoBehaviour
             Game.isPlaying = true;
             Banner.Hide();
 
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         });
 
         ExitButton.onClick.AddListener(Application.Quit);

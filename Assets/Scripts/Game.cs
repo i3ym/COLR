@@ -60,6 +60,8 @@ public class Game : MonoBehaviour
         StartCoroutine(RemoveParticlesCoroutine());
 
         Prefs.UpdateCameraPrefs(Camera);
+
+        isPlaying = true;
     }
 
     [Conditional("DEBUG")]
@@ -148,11 +150,7 @@ public class Game : MonoBehaviour
 
     public void RestartGameIfNeeded()
     {
-        if (!isPlaying)
-        {
-            SceneManager.LoadScene(0);
-            SceneManager.UnloadSceneAsync(1);
-        }
+        if (!isPlaying) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     IEnumerator SpawnMeteorsCoroutine()
