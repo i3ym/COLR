@@ -302,6 +302,18 @@ PrefabInstance:
       propertyPath: m_textAlignment
       value: 513
       objectReference: {fileID: 0}
+    - target: {fileID: 3386116453621589505, guid: 6fd27594049a0547ca62470dbf73d690,
+        type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 7171b9b9a4b525571bea07622b950f71,
+        type: 2}
+    - target: {fileID: 3386116453621589505, guid: 6fd27594049a0547ca62470dbf73d690,
+        type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 21658986402623890, guid: 7171b9b9a4b525571bea07622b950f71,
+        type: 2}
     - target: {fileID: 4261733331518866587, guid: 6fd27594049a0547ca62470dbf73d690,
         type: 3}
       propertyPath: m_havePropertiesChanged
