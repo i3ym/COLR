@@ -5,16 +5,18 @@ using UnityEngine.UI;
 public class Settings : MonoBehaviour
 {
     [SerializeField]
-    PostProcessVolume PPP = null;
-    [SerializeField]
     GameObject SettingsObj = null, MainMenu = null, Graphics = null;
     [SerializeField]
     Button GraphicsButton = null, BackButton = null;
     [SerializeField]
     Button GraphicsBloomButton = null, GraphicsGrainButton = null, GraphicsChromaButton = null, GraphicsLensButton = null, GraphicsBackButton = null;
 
+    static Camera Camera;
+
     void Start()
     {
+        Camera = Camera.main;
+
         MainMenu.SetActive(true);
         Graphics.SetActive(false);
         SettingsObj.SetActive(false);
@@ -35,16 +37,15 @@ public class Settings : MonoBehaviour
             Graphics.SetActive(false);
         });
 
-        var bloom = PPP.profile.GetSetting<Bloom>();
-        GraphicsBloomButton.onClick.AddListener(() => bloom.active = !bloom.active);
+        GraphicsBloomButton.onClick.AddListener(() => TurnOption(ref Prefs.Bloom));
+        GraphicsGrainButton.onClick.AddListener(() => TurnOption(ref Prefs.Grain));
+        GraphicsChromaButton.onClick.AddListener(() => TurnOption(ref Prefs.Chroma));
+        GraphicsLensButton.onClick.AddListener(() => TurnOption(ref Prefs.Lens));
+    }
 
-        var grain = PPP.profile.GetSetting<Grain>();
-        GraphicsGrainButton.onClick.AddListener(() => grain.active = !grain.active);
-
-        var chroma = PPP.profile.GetSetting<ChromaticAberration>();
-        GraphicsChromaButton.onClick.AddListener(() => chroma.active = !chroma.active);
-
-        var lens = PPP.profile.GetSetting<LensDistortion>();
-        GraphicsLensButton.onClick.AddListener(() => lens.active = !lens.active);
+    static void TurnOption(ref bool opt)
+    {
+        opt = !opt;
+        Prefs.UpdateCameraPrefs(Camera);
     }
 }

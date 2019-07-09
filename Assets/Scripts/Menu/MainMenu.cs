@@ -14,6 +14,8 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
+        Prefs.UpdateCameraPrefs(Camera.main);
+
         StartGameButton.onClick.AddListener(() =>
         {
             Game.isPlaying = true;

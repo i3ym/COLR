@@ -52,14 +52,14 @@ public class Game : MonoBehaviour
 
     void Start()
     {
-        Destroy(GetComponent<Canvas>().worldCamera.gameObject);
-        GetComponent<Canvas>().worldCamera = Camera = Camera.main;
+        Camera = Camera.main;
         Player = player;
-
         MaxWorldPos = Camera.ViewportToWorldPoint(Vector3.one);
 
         StartCoroutine(SpawnMeteorsCoroutine());
         StartCoroutine(RemoveParticlesCoroutine());
+
+        Prefs.UpdateCameraPrefs(Camera);
     }
 
     [Conditional("DEBUG")]
@@ -148,7 +148,11 @@ public class Game : MonoBehaviour
 
     public void RestartGameIfNeeded()
     {
-        if (!isPlaying) SceneManager.LoadScene(0);
+        if (!isPlaying)
+        {
+            SceneManager.LoadScene(0);
+            SceneManager.UnloadSceneAsync(1);
+        }
     }
 
     IEnumerator SpawnMeteorsCoroutine()
