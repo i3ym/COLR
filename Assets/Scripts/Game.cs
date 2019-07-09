@@ -52,6 +52,7 @@ public class Game : MonoBehaviour
 
     void Start()
     {
+        Destroy(GetComponent<Canvas>().worldCamera.gameObject);
         GetComponent<Canvas>().worldCamera = Camera = Camera.main;
         Player = player;
 

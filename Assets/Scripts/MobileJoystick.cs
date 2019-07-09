@@ -14,7 +14,6 @@ public class MobileJoystick : MonoBehaviour
     EventTrigger Trigger;
     new RectTransform transform;
     bool Dragging = false;
-    int CurrentTouchID = -1;
     Vector2 TouchPos;
 
     void Start()
