@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class Meteor : Movable
 {
+    public MeteorEffect Effect { get => MeteorEffect.Effects[EffectType]; }
+    public MeteorEffectType EffectType = MeteorEffectType.None;
+
     IEnumerator SpawnMeteorNextFixedFrameCoroutine()
     {
         yield return new WaitForFixedUpdate();
@@ -12,6 +15,14 @@ public class Meteor : Movable
     protected override void OnTriggerEnter2D(Collider2D collision)
     {
         if (!gameObject.activeSelf || !collision.gameObject.activeSelf) return;
+
+        if (EffectType != MeteorEffectType.None && !collision.CompareTag("Meteor"))
+        {
+            Effect.PlayEffect();
+
+            Death();
+            return;
+        }
 
         if (collision.CompareTag("Player")) Game.game.GameOver();
         else if (collision.CompareTag("Meteor"))
@@ -26,6 +37,7 @@ public class Meteor : Movable
     {
         base.Death();
         Game.game.MeteorPool.Enqueue(rigidbody);
-        Game.game.PlayDeathParticle(transform.position);
+
+        Game.game.PlayDeathParticle(transform.position, Effect.Color);
     }
 }

@@ -6,14 +6,16 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
     public static Game game;
     public static Player Player;
     public static Camera Camera;
+    public static bool isPlaying;
+    public static float PlayerSpeedMultiplier, PlayerShootSpeed;
     public int Score { get => _score; set { _score = value; game.scoreText.text = value.ToString(); } }
-    public static bool isPlaying = false;
 
     int _score = 0;
     public Dictionary<Rigidbody2D, Vector2> Movables = new Dictionary<Rigidbody2D, Vector2>();
@@ -21,6 +23,8 @@ public class Game : MonoBehaviour
     public Queue<Rigidbody2D> BulletPool = new Queue<Rigidbody2D>();
     Queue<ParticleSystem> DeathParticlePool = new Queue<ParticleSystem>();
     List<ParticleSystem> DeathParticles = new List<ParticleSystem>();
+
+    Dictionary<MeteorEffectType, Material> MeteorMaterials = new Dictionary<MeteorEffectType, Material>();
 
     [SerializeField]
     Player player = null;
@@ -48,6 +52,8 @@ public class Game : MonoBehaviour
         DeathParticles.Clear();
 
         Score = 0;
+        PlayerSpeedMultiplier = 1f;
+        PlayerShootSpeed = 1f;
     }
 
     void Start()
@@ -111,7 +117,8 @@ public class Game : MonoBehaviour
         Destroy(player.gameObject);
     }
 
-    public void PlayDeathParticle(Vector2 position)
+    public void PlayDeathParticle(Vector2 position) => PlayDeathParticle(position, Color.white);
+    public void PlayDeathParticle(Vector2 position, Color color)
     {
         if (Mathf.Abs(position.x) > MaxWorldPos.x || Mathf.Abs(position.y) > MaxWorldPos.y) return;
 
@@ -128,6 +135,9 @@ public class Game : MonoBehaviour
 
         dp.transform.parent = gamePlaceholder;
         dp.transform.position = position;
+
+        var main = dp.main;
+        main.startColor = color;
 
         dp.Clear();
         dp.Play();
@@ -197,6 +207,21 @@ public class Game : MonoBehaviour
         dirToPlayer = dirToPlayer.normalized;
         dirToPlayer.x += Random.value * 4f - 2f;
         dirToPlayer.y += Random.value * 4f - 2f;
+
+        var m = meteor.GetComponent<Meteor>();
+
+        /// assign a random effect
+
+        float randomEffect = Random.value;
+
+        if (randomEffect >.98) m.EffectType = MeteorEffectType.Speedup;
+        else if (randomEffect >.96) m.EffectType = MeteorEffectType.Slowdown;
+        else if (randomEffect >.94) m.EffectType = MeteorEffectType.FasterShoot;
+        else if (randomEffect >.92) m.EffectType = MeteorEffectType.SlowerShoot;
+
+        /// assign a random effect ///
+
+        meteor.GetComponent<RawImage>().color = m.Effect.Color;
 
         Movables.Add(meteor, -dirToPlayer.normalized / 30f);
     }

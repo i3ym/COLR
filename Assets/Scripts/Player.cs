@@ -18,7 +18,7 @@ public class Player : MonoBehaviour
         if (name.Contains("Clone")) Destroy(this);
 
 #if DEBUG
-        gameObject.GetComponent<PolygonCollider2D>().enabled = false;
+        // gameObject.GetComponent<PolygonCollider2D>().enabled = false;
 #endif
     }
 
@@ -47,7 +47,6 @@ public class Player : MonoBehaviour
 
     IEnumerator ShootCoroutine()
     {
-        var wfs = new WaitForSeconds(.5f);
         var wfi = new WaitUntil(() => DoShoot);
 
         while (true)
@@ -56,7 +55,7 @@ public class Player : MonoBehaviour
             yield return wfi;
 
             Game.game.Shoot();
-            yield return wfs;
+            yield return new WaitForSeconds(.5f * Game.PlayerShootSpeed);
         }
     }
 
@@ -66,13 +65,13 @@ public class Player : MonoBehaviour
     {
         if (!isFluidControls)
         {
-            transform.anchoredPosition += (Vector2) transform.up * forward * 50f;
+            transform.anchoredPosition += (Vector2) transform.up * forward * 50f * Game.PlayerSpeedMultiplier;
             rigidbody.MovePosition(transform.position);
             rigidbody.rotation += rotation * 6f;
         }
         else
         {
-            rigidbody.AddForce(transform.up * forward * 2f);
+            rigidbody.AddForce(transform.up * forward * 2f * Game.PlayerSpeedMultiplier);
             rigidbody.AddTorque(rotation / 6f);
         }
     }

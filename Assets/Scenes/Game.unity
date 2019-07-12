@@ -167,11 +167,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 4261733331518866577, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_Layer
-      value: 10
-      objectReference: {fileID: 0}
     - target: {fileID: 4261733331518866576, guid: 6fd27594049a0547ca62470dbf73d690,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -277,115 +272,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 8096170014024749152, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_Layer
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 2110656634364014180, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_Layer
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 3386116453621589505, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_havePropertiesChanged
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3386116453621589505, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_isInputParsingRequired
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3386116453621589505, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_textAlignment
-      value: 513
-      objectReference: {fileID: 0}
-    - target: {fileID: 3386116453621589505, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 7171b9b9a4b525571bea07622b950f71,
-        type: 2}
-    - target: {fileID: 3386116453621589505, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 21658986402623890, guid: 7171b9b9a4b525571bea07622b950f71,
-        type: 2}
-    - target: {fileID: 4261733331518866587, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_havePropertiesChanged
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4261733331518866587, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_isInputParsingRequired
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4261733331518866587, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 7171b9b9a4b525571bea07622b950f71,
-        type: 2}
-    - target: {fileID: 4261733331518866587, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 21658986402623890, guid: 7171b9b9a4b525571bea07622b950f71,
-        type: 2}
-    - target: {fileID: 4261733331518866581, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: joystick
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 4261733331518866581, guid: 6fd27594049a0547ca62470dbf73d690,
         type: 3}
       propertyPath: Joystick
       value: 
       objectReference: {fileID: 329886591}
-    - target: {fileID: 1204127451956659387, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1204127451956659387, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1204127451956659387, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 52
-      objectReference: {fileID: 0}
-    - target: {fileID: 1204127451956659387, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -4.9996657
-      objectReference: {fileID: 0}
-    - target: {fileID: 1204127451956659387, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 1204127451956659387, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_Pivot.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1204127451956659387, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_Pivot.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1204127451956659387, guid: 6fd27594049a0547ca62470dbf73d690,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 40
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6fd27594049a0547ca62470dbf73d690, type: 3}
 --- !u!1 &203139556
