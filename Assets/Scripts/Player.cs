@@ -3,13 +3,12 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public static bool isFluidControls = false;
     const string Horizontal = "Horizontal";
     const string Vertical = "Vertical";
-    new Rigidbody2D rigidbody;
-    new RectTransform transform;
     bool DoShoot = false;
 
+    [HideInInspector]
+    public new RectTransform transform;
     [SerializeField]
     MobileJoystick Joystick = null;
 
@@ -24,25 +23,15 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        Physics2D.IgnoreLayerCollision(10, 11);
-
-        rigidbody = GetComponent<Rigidbody2D>();
-        rigidbody.isKinematic = !isFluidControls;
-
-        transform = GetComponent<RectTransform>();
+        transform = gameObject.transform as RectTransform;
 
         StartCoroutine(ShootCoroutine());
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space)) Game.game.RestartGameIfNeeded();
     }
 
     void FixedUpdate()
     {
         MobileJoystickInput();
-        // PCMovement();
+        PCInput();
     }
 
     IEnumerator ShootCoroutine()
@@ -63,17 +52,8 @@ public class Player : MonoBehaviour
 
     void MovePlayer(float forward, float rotation)
     {
-        if (!isFluidControls)
-        {
-            transform.anchoredPosition += (Vector2) transform.up * forward * 50f * Game.PlayerSpeedMultiplier;
-            rigidbody.MovePosition(transform.position);
-            rigidbody.rotation += rotation * 6f;
-        }
-        else
-        {
-            rigidbody.AddForce(transform.up * forward * 2f * Game.PlayerSpeedMultiplier);
-            rigidbody.AddTorque(rotation / 6f);
-        }
+        transform.anchoredPosition += (Vector2) transform.up * forward * 50f * Game.PlayerSpeedMultiplier;
+        transform.Rotate(0f, 0f, rotation * 6f);
     }
 
     void MobileJoystickInput() => MovePlayer(Joystick.Vertical, -Joystick.Horizontal);
@@ -97,14 +77,12 @@ public class Player : MonoBehaviour
         float move = 0f;
         if (Mathf.Abs(angle) < 90f) move = (90f - Mathf.Abs(angle)) / 90f;
 
-        if (isFluidControls) MovePlayer(move / 5f, rotate);
-        else MovePlayer(move / 5f, rotate);
+        MovePlayer(move / 5f, rotate);
     }
 
     void PCInput()
     {
-        if (isFluidControls) MovePlayer(Input.GetAxis(Vertical), -Input.GetAxis(Horizontal));
-        else MovePlayer(Input.GetAxis(Vertical), -Input.GetAxis(Horizontal));
+        MovePlayer(Input.GetAxis(Vertical), -Input.GetAxis(Horizontal));
 
         if (Input.GetKey(KeyCode.Space)) DoShoot = true;
     }

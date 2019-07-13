@@ -38,11 +38,11 @@ public class OffScreen : MonoBehaviour
         shadowGO.anchoredPosition = transform.anchoredPosition;
         shadowGO.rotation = transform.rotation;
 
-        if (transform.anchoredPosition.x > Game.game.gamePlaceholder.rect.size.x / 2) transform.anchoredPosition -= new Vector2(Game.game.gamePlaceholder.rect.size.x, 0f);
-        else if (transform.anchoredPosition.x < -Game.game.gamePlaceholder.rect.size.x / 2) transform.anchoredPosition += new Vector2(Game.game.gamePlaceholder.rect.size.x, 0f);
+        if (transform.anchoredPosition.x > Game.game.GamePlaceholder.rect.size.x / 2) transform.anchoredPosition -= new Vector2(Game.game.GamePlaceholder.rect.size.x, 0f);
+        else if (transform.anchoredPosition.x < -Game.game.GamePlaceholder.rect.size.x / 2) transform.anchoredPosition += new Vector2(Game.game.GamePlaceholder.rect.size.x, 0f);
 
-        if (transform.anchoredPosition.y > Game.game.gamePlaceholder.rect.size.y / 2) transform.anchoredPosition -= new Vector2(0f, Game.game.gamePlaceholder.rect.size.y);
-        else if (transform.anchoredPosition.y < -Game.game.gamePlaceholder.rect.size.y / 2) transform.anchoredPosition += new Vector2(0f, Game.game.gamePlaceholder.rect.size.y);
+        if (transform.anchoredPosition.y > Game.game.GamePlaceholder.rect.size.y / 2) transform.anchoredPosition -= new Vector2(0f, Game.game.GamePlaceholder.rect.size.y);
+        else if (transform.anchoredPosition.y < -Game.game.GamePlaceholder.rect.size.y / 2) transform.anchoredPosition += new Vector2(0f, Game.game.GamePlaceholder.rect.size.y);
     }
 
     void OnDestroy()

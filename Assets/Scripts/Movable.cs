@@ -1,21 +1,28 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public abstract class Movable : MonoBehaviour
 {
     [HideInInspector]
-    public new Rigidbody2D rigidbody;
+    public RawImage RawImage;
+    [HideInInspector]
+    public new RectTransform transform;
 
-    void Start() => rigidbody = GetComponent<Rigidbody2D>();
+    [HideInInspector]
+    public Vector3 Direction;
 
-    protected abstract void OnTriggerEnter2D(Collider2D collision);
+    void Awake()
+    {
+        transform = gameObject.transform as RectTransform;
+        RawImage = GetComponent<RawImage>();
+    }
 
     public virtual void Death()
     {
         StopAllCoroutines();
 
-        Game.game.Movables.Remove(rigidbody);
-
+        Game.game.Movables.Remove(this);
         gameObject.SetActive(false);
     }
 }

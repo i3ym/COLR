@@ -18,7 +18,7 @@ public class MainMenu : MonoBehaviour
 
         StartGameButton.onClick.AddListener(() =>
         {
-            Game.isPlaying = true;
+            Game.IsPlaying = true;
             Banner.Hide();
 
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);

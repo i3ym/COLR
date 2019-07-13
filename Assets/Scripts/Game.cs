@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -13,14 +11,14 @@ public class Game : MonoBehaviour
     public static Game game;
     public static Player Player;
     public static Camera Camera;
-    public static bool isPlaying;
+    public static bool IsPlaying;
     public static float PlayerSpeedMultiplier, PlayerShootSpeed;
-    public int Score { get => _score; set { _score = value; game.scoreText.text = value.ToString(); } }
+    public int Score { get => _score; set { _score = value; game.ScoreText.text = value.ToString(); } }
 
     int _score = 0;
-    public Dictionary<Rigidbody2D, Vector2> Movables = new Dictionary<Rigidbody2D, Vector2>();
-    public Queue<Rigidbody2D> MeteorPool = new Queue<Rigidbody2D>();
-    public Queue<Rigidbody2D> BulletPool = new Queue<Rigidbody2D>();
+    public List<Movable> Movables = new List<Movable>();
+    public Queue<Meteor> MeteorPool = new Queue<Meteor>();
+    public Queue<Bullet> BulletPool = new Queue<Bullet>();
     Queue<ParticleSystem> DeathParticlePool = new Queue<ParticleSystem>();
     List<ParticleSystem> DeathParticles = new List<ParticleSystem>();
 
@@ -29,13 +27,13 @@ public class Game : MonoBehaviour
     [SerializeField]
     Player player = null;
     [SerializeField]
-    public RectTransform gamePlaceholder = null;
+    public RectTransform GamePlaceholder = null;
     [SerializeField]
-    GameObject BulletPrefab = null, meteorPrefab = null, DeathParticlePrefab = null;
+    GameObject BulletPrefab = null, MeteorPrefab = null, DeathParticlePrefab = null;
     [SerializeField]
-    TextMeshProUGUI scoreText = null;
+    TextMeshProUGUI ScoreText = null;
     [SerializeField]
-    RectTransform ParticlesParent = null, MeteorsParent = null;
+    RectTransform ParticlesParent = null, MeteorsParent = null, BulletsParent = null;
 
     public float TimeScale = 1f;
     Vector2 MaxWorldPos;
@@ -67,48 +65,42 @@ public class Game : MonoBehaviour
 
         Prefs.UpdateCameraPrefs(Camera);
 
-        isPlaying = true;
+        IsPlaying = true;
     }
 
-    [Conditional("DEBUG")]
-    void Update() => Time.timeScale = TimeScale;
+    void Update()
+    {
+#if DEBUG
+        Time.timeScale = TimeScale;
+#endif
+
+        if (Input.GetMouseButtonDown(0)) Game.game.RestartGameIfNeeded();
+    }
 
     void FixedUpdate()
     {
-        if (isPlaying)
-        {
-            Score++;
-            foreach (var movable in Movables.ToArray())
-            {
-                _pos = movable.Key.transform.position;
-                if (Mathf.Abs(_pos.x) > MaxWorldPos.x + 2f || Mathf.Abs(_pos.y) > MaxWorldPos.y + 2f)
-                {
-                    Destroy(movable.Key.gameObject);
-                    Movables.Remove(movable.Key);
+        if (!IsPlaying) return;
 
-                    continue;
-                }
-
-                movable.Key.MovePosition((Vector2) movable.Key.position + movable.Value);
-            }
-        }
+        Score++;
+        MoveMovables();
+        CastColliders();
     }
 
     public void GameOver()
     {
-        if (!isPlaying) return;
+        if (!IsPlaying) return;
 
-        isPlaying = false;
+        IsPlaying = false;
 
-        foreach (Rigidbody2D movable in Movables.Keys)
-            if (movable)
+        foreach (var movable in Movables)
+            if (movable && movable.gameObject.activeSelf)
             {
                 PlayDeathParticle(movable.transform.position);
                 Destroy(movable.gameObject);
             }
 
-        RectTransform tr = scoreText.GetComponent<RectTransform>();
-        tr.parent = gamePlaceholder;
+        RectTransform tr = ScoreText.GetComponent<RectTransform>();
+        tr.parent = GamePlaceholder;
         tr.rotation = Quaternion.identity;
         tr.anchorMax = tr.anchorMin = new Vector2(.5f, .5f);
         tr.anchoredPosition = Vector2.zero;
@@ -117,7 +109,75 @@ public class Game : MonoBehaviour
         Destroy(player.gameObject);
     }
 
+    public void RestartGameIfNeeded()
+    {
+        if (!IsPlaying) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    void MoveMovables()
+    {
+        foreach (var movable in Movables.ToArray())
+        {
+            _pos = movable.transform.position;
+
+            if (Mathf.Abs(_pos.x) > MaxWorldPos.x + 2f || Mathf.Abs(_pos.y) > MaxWorldPos.y + 2f)
+            {
+                movable.Death();
+                continue;
+            }
+
+            movable.transform.position += movable.Direction;
+        }
+    }
+
+    void CastColliders()
+    {
+        Rect rect1, rect2;
+        Movable movable, movable2;
+        var movables = Movables.ToArray();
+
+        for (int i = 0; i < movables.Length; i++)
+        {
+            movable = movables[i];
+
+            if (!movable.gameObject.activeSelf) continue;
+
+            rect1 = movable.transform.rect;
+            rect1.center = movable.transform.anchoredPosition;
+
+            if (movable is Meteor)
+            {
+                rect2 = Player.transform.rect;
+                rect2.center = Player.transform.anchoredPosition;
+
+                if (rect1.Overlaps(rect2))
+                {
+                    (movable as Meteor).Effect.PlayEffect();
+                    movable.Death();
+                    return;
+                }
+            }
+
+            for (int j = 0; j < movables.Length; j++)
+            {
+                movable2 = movables[i];
+
+                if (movable == movable2 || !movable2.gameObject.activeSelf) continue;
+
+                rect2 = movable2.transform.rect;
+                rect2.center = movable2.transform.anchoredPosition;
+
+                if (rect1.Overlaps(rect2))
+                {
+                    movable.Death();
+                    movable2.Death();
+                }
+            }
+        }
+    }
+
     public void PlayDeathParticle(Vector2 position) => PlayDeathParticle(position, Color.white);
+
     public void PlayDeathParticle(Vector2 position, Color color)
     {
         if (Mathf.Abs(position.x) > MaxWorldPos.x || Mathf.Abs(position.y) > MaxWorldPos.y) return;
@@ -126,14 +186,14 @@ public class Game : MonoBehaviour
 
         if (DeathParticlePool.Count == 0)
         {
-            dp = Instantiate(DeathParticlePrefab, game.gamePlaceholder).GetComponent<ParticleSystem>();
+            dp = Instantiate(DeathParticlePrefab, game.GamePlaceholder).GetComponent<ParticleSystem>();
             dp.transform.SetParent(ParticlesParent, true);
         }
         else dp = DeathParticlePool.Dequeue();
 
         dp.gameObject.SetActive(true);
 
-        dp.transform.parent = gamePlaceholder;
+        dp.transform.parent = GamePlaceholder;
         dp.transform.position = position;
 
         var main = dp.main;
@@ -147,89 +207,88 @@ public class Game : MonoBehaviour
 
     public void Shoot()
     {
-        Rigidbody2D bullet;
-        if (BulletPool.Count == 0) bullet = Instantiate(game.BulletPrefab).GetComponent<Rigidbody2D>();
+        Bullet bullet;
+        if (BulletPool.Count == 0)
+        {
+            bullet = Instantiate(game.BulletPrefab).GetComponent<Bullet>();
+            bullet.transform.SetParent(BulletsParent, true);
+            bullet.transform.localScale = Vector3.one;
+        }
         else bullet = BulletPool.Dequeue();
 
         bullet.gameObject.SetActive(true);
-
-        bullet.transform.SetParent(game.gamePlaceholder, false);
         bullet.transform.position = Player.transform.position + Player.transform.up / 40f;
-        Movables.Add(bullet, Player.transform.up / 20f);
-    }
 
-    public void RestartGameIfNeeded()
-    {
-        if (!isPlaying) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        bullet.Direction = Player.transform.up / 20f;
+        Movables.Add(bullet);
     }
 
     IEnumerator SpawnMeteorsCoroutine()
     {
-        var wfi = new WaitUntil(() => isPlaying);
+        var wfi = new WaitUntil(() => IsPlaying);
 
         while (true)
         {
-            if (!isPlaying) yield return wfi;
+            if (!IsPlaying) yield return wfi;
 
             SpawnMeteor();
             yield return new WaitForSeconds(Random.value / 2f);
         }
     }
 
+    public async void SpawnMeteorNextFrame()
+    {
+        await Task.Delay((int) (Time.fixedDeltaTime * 1000f));
+        SpawnMeteor();
+    }
+
     public void SpawnMeteor()
     {
-        if (!isPlaying) return;
+        if (!IsPlaying) return;
 
         Vector2 spawnPos = new Vector2();
         if (Random.value >.5f)
         {
-            spawnPos.x = (Random.value - .5f) * gamePlaceholder.rect.size.x;
-            spawnPos.y = (Random.value >.5f ? -1f : 1f) * gamePlaceholder.rect.size.y / 2;
+            spawnPos.x = (Random.value - .5f) * GamePlaceholder.rect.size.x;
+            spawnPos.y = (Random.value >.5f ? -1f : 1f) * GamePlaceholder.rect.size.y / 2 - 10f;
         }
         else
         {
-            spawnPos.x = (Random.value >.5f ? -1f : 1f) * gamePlaceholder.rect.size.x / 2;
-            spawnPos.y = (Random.value - .5f) * gamePlaceholder.rect.size.y;
+            spawnPos.x = (Random.value >.5f ? -1f : 1f) * GamePlaceholder.rect.size.x / 2 - 10f;
+            spawnPos.y = (Random.value - .5f) * GamePlaceholder.rect.size.y;
         }
 
-        Rigidbody2D meteor;
+        Meteor meteor;
         if (MeteorPool.Count == 0)
         {
-            meteor = Instantiate(meteorPrefab, game.gamePlaceholder).GetComponent<Rigidbody2D>();
+            meteor = Instantiate(MeteorPrefab, game.GamePlaceholder).GetComponent<Meteor>();
             meteor.transform.SetParent(MeteorsParent, true);
         }
         else meteor = MeteorPool.Dequeue();
 
         meteor.gameObject.SetActive(true);
-        (meteor.transform as RectTransform).anchoredPosition = spawnPos;
+        meteor.transform.anchoredPosition = spawnPos;
 
         Vector2 dirToPlayer = meteor.transform.position - Player.transform.position;
         dirToPlayer = dirToPlayer.normalized;
         dirToPlayer.x += Random.value * 4f - 2f;
         dirToPlayer.y += Random.value * 4f - 2f;
 
-        var m = meteor.GetComponent<Meteor>();
-
         /// assign a random effect
 
         float randomEffect = Random.value;
 
-        if (randomEffect >.98) m.EffectType = MeteorEffectType.Speedup;
-        else if (randomEffect >.96) m.EffectType = MeteorEffectType.Slowdown;
-        else if (randomEffect >.94) m.EffectType = MeteorEffectType.FasterShoot;
-        else if (randomEffect >.92) m.EffectType = MeteorEffectType.SlowerShoot;
+        if (randomEffect >.98) meteor.EffectType = MeteorEffectType.Speedup;
+        else if (randomEffect >.96) meteor.EffectType = MeteorEffectType.Slowdown;
+        else if (randomEffect >.94) meteor.EffectType = MeteorEffectType.FasterShoot;
+        else if (randomEffect >.92) meteor.EffectType = MeteorEffectType.SlowerShoot;
 
         /// assign a random effect ///
 
-        meteor.GetComponent<RawImage>().color = m.Effect.Color;
+        meteor.GetComponent<RawImage>().color = meteor.Effect.Color;
 
-        Movables.Add(meteor, -dirToPlayer.normalized / 30f);
-    }
-
-    public async void SpawnMeteorNextFrame()
-    {
-        await Task.Delay((int) (Time.fixedDeltaTime * 1000f));
-        SpawnMeteor();
+        meteor.Direction = -dirToPlayer.normalized / 30f;
+        Movables.Add(meteor);
     }
 
     IEnumerator RemoveParticlesCoroutine()

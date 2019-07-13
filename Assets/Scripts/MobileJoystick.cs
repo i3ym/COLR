@@ -70,10 +70,10 @@ public class MobileJoystick : MonoBehaviour
     {
         if (!Dragging) return;
 
-        Vector2 pos = (Vector2) Game.Camera.ScreenToViewportPoint(TouchPos) * Game.game.gamePlaceholder.rect.size;
+        Vector2 pos = (Vector2) Game.Camera.ScreenToViewportPoint(TouchPos) * Game.game.GamePlaceholder.rect.size;
 
         pos -= transform.anchoredPosition;
-        pos.x -= Game.game.gamePlaceholder.rect.width - transform.rect.width;
+        pos.x -= Game.game.GamePlaceholder.rect.width - transform.rect.width;
         pos -= transform.rect.size / 2f;
 
         if (pos.x > transform.rect.width / 2f) pos.x = transform.rect.width / 2f;

@@ -22,7 +22,7 @@ public class MeteorEffect
         {
             Color = new Color(1f, 1f, 1f, 1f),
                 WaitTime = 0,
-                StartAction = () => { },
+                StartAction = () => Game.game.GameOver(),
                 EndAction = () => { }
         });
         Effects.Add(MeteorEffectType.Speedup, new MeteorEffect()
@@ -34,7 +34,7 @@ public class MeteorEffect
         });
         Effects.Add(MeteorEffectType.Slowdown, new MeteorEffect()
         {
-            Color = new Color(0f, .5f, 0f, 1f),
+            Color = new Color(1f, 0f, 0f, 1f),
                 WaitTime = 5_000,
                 StartAction = () => Game.PlayerSpeedMultiplier--,
                 EndAction = () => Game.PlayerSpeedMultiplier++
