@@ -1,6 +1,5 @@
 ﻿using GoogleMobileAds.Api;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
@@ -18,10 +17,12 @@ public class MainMenu : MonoBehaviour
 
         StartGameButton.onClick.AddListener(() =>
         {
-            Game.IsPlaying = true;
-            Banner.Hide();
+            if (Banner != null) Banner.Hide();
+            
+            gameObject.SetActive(false);
 
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            Game.game.gameObject.SetActive(true);
+            Game.game.StartGame();
         });
 
         ExitButton.onClick.AddListener(Application.Quit);
@@ -34,7 +35,9 @@ public class MainMenu : MonoBehaviour
 
         Settings.SetActive(true);
 
+#if !UNITY_EDITOR
         CreateAdBanner();
+#endif
     }
 
     void CreateAdBanner()

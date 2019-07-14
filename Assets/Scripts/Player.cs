@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -6,49 +7,37 @@ public class Player : MonoBehaviour
     const string Horizontal = "Horizontal";
     const string Vertical = "Vertical";
     bool DoShoot = false;
+    float LastShootTime = 0f;
+
+    RectTransform ShadowGO;
+    TextMeshProUGUI ShadowScoreText;
 
     [HideInInspector]
-    public new RectTransform transform;
-    [SerializeField]
-    MobileJoystick Joystick = null;
+    public new RectTransform transform = null;
+    [HideInInspector]
+    public TextMeshProUGUI ScoreText = null;
 
     void Awake()
     {
-        if (name.Contains("Clone")) Destroy(this);
-
-#if DEBUG
-        // gameObject.GetComponent<PolygonCollider2D>().enabled = false;
-#endif
-    }
-
-    void Start()
-    {
         transform = gameObject.transform as RectTransform;
-
-        StartCoroutine(ShootCoroutine());
+        ScoreText = transform.GetChild(0).GetComponent<TextMeshProUGUI>();
     }
 
     void FixedUpdate()
     {
+        if (!Game.IsPlaying) return;
+
         MobileJoystickInput();
         PCInput();
     }
 
-    IEnumerator ShootCoroutine()
+    public void Shoot()
     {
-        var wfi = new WaitUntil(() => DoShoot);
+        if (LastShootTime + .5f * Game.PlayerShootSpeed > Time.time) return;
 
-        while (true)
-        {
-            DoShoot = false;
-            yield return wfi;
-
-            Game.game.Shoot();
-            yield return new WaitForSeconds(.5f * Game.PlayerShootSpeed);
-        }
+        LastShootTime = Time.time;
+        Game.game.Shoot();
     }
-
-    public void Shoot() => DoShoot = true;
 
     void MovePlayer(float forward, float rotation)
     {
@@ -56,7 +45,7 @@ public class Player : MonoBehaviour
         transform.Rotate(0f, 0f, rotation * 6f);
     }
 
-    void MobileJoystickInput() => MovePlayer(Joystick.Vertical, -Joystick.Horizontal);
+    void MobileJoystickInput() => MovePlayer(MobileJoystick.Vertical, -MobileJoystick.Horizontal);
 
     void MobileScreenInput()
     {

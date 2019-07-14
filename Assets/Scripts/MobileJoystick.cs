@@ -1,16 +1,18 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public class MobileJoystick : MonoBehaviour
 {
+    public static float Horizontal, Vertical;
+
     [SerializeField]
     RectTransform Knob = null;
     [SerializeField]
     EventTrigger ShootTrigger = null;
 
-    [HideInInspector]
-    public float Horizontal, Vertical;
     EventTrigger Trigger;
     new RectTransform transform;
     bool Dragging = false;
@@ -18,52 +20,52 @@ public class MobileJoystick : MonoBehaviour
 
     void Start()
     {
+        Horizontal = Vertical = 0f;
+
         transform = gameObject.transform as RectTransform;
         TouchPos = Game.Camera.WorldToScreenPoint(Knob.position);
 
         Trigger = GetComponent<EventTrigger>();
         if (Trigger == null) Trigger = gameObject.AddComponent<EventTrigger>();
 
-        var entry = new EventTrigger.Entry();
-        entry.eventID = EventTriggerType.PointerDown;
-        entry.callback.AddListener((data) =>
+        void AddCallback(EventTriggerType type, UnityAction<BaseEventData> action, EventTrigger trigger = null)
+        {
+            var entry = new EventTrigger.Entry();
+            entry.eventID = type;
+            entry.callback.AddListener(action);
+
+            if (trigger == null) Trigger.triggers.Add(entry);
+            else trigger.triggers.Add(entry);
+        }
+
+        AddCallback(EventTriggerType.PointerDown, (data) =>
         {
             Dragging = true;
             TouchPos = ((PointerEventData) data).position;
         });
-        Trigger.triggers.Add(entry);
 
-        entry = new EventTrigger.Entry();
-        entry.eventID = EventTriggerType.Drag;
-        entry.callback.AddListener((data) =>
-        {
-            if (Dragging) TouchPos = ((PointerEventData) data).position;
-        });
-        Trigger.triggers.Add(entry);
-
-        entry = new EventTrigger.Entry();
-        entry.eventID = EventTriggerType.PointerUp;
-        entry.callback.AddListener((data) =>
+        AddCallback(EventTriggerType.PointerUp, (data) =>
         {
             Dragging = false;
             Knob.anchoredPosition = Vector2.zero;
             Vertical = Horizontal = 0f;
         });
-        Trigger.triggers.Add(entry);
 
-        entry = new EventTrigger.Entry();
-        entry.eventID = EventTriggerType.PointerDown;
-        entry.callback.AddListener((data) =>
+        AddCallback(EventTriggerType.Drag, (data) =>
         {
-            Game.game.RestartGameIfNeeded();
-            StartCoroutine(ShootCoroutine());
+            if (Dragging) TouchPos = ((PointerEventData) data).position;
         });
-        ShootTrigger.triggers.Add(entry);
 
-        entry = new EventTrigger.Entry();
-        entry.eventID = EventTriggerType.PointerUp;
-        entry.callback.AddListener((data) => StopAllCoroutines());
-        ShootTrigger.triggers.Add(entry);
+        ///
+
+        AddCallback(EventTriggerType.PointerUp, (data) => StopAllCoroutines(), ShootTrigger);
+
+        AddCallback(EventTriggerType.PointerDown, (data) =>
+        {
+            if (Game.IsPlaying) StartCoroutine(ShootCoroutine());
+
+            Game.game.RestartGameIfNeeded();
+        }, ShootTrigger);
     }
 
     void Update()
@@ -92,7 +94,7 @@ public class MobileJoystick : MonoBehaviour
     {
         while (true)
         {
-            Game.Player.Shoot();
+            Game.game.Player.Shoot();
             yield return null;
         }
     }

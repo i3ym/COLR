@@ -3,25 +3,23 @@ using UnityEngine;
 
 public class OffScreen : MonoBehaviour
 {
-    [SerializeField]
-    MonoBehaviour ControlScript;
-
     RectTransform shadowGO;
     new RectTransform transform;
     TextMeshProUGUI scoreText;
 
     void Start()
     {
-        transform = GetComponent<RectTransform>();
+        transform = gameObject.transform as RectTransform;
 
         shadowGO = Instantiate(gameObject, transform.parent).GetComponent<RectTransform>();
         scoreText = shadowGO.GetChild(0).GetComponent<TextMeshProUGUI>();
+
         Destroy(shadowGO.GetComponent<OffScreen>());
-        if (ControlScript != null) Destroy(shadowGO.GetComponent(ControlScript.GetType()));
+        Destroy(shadowGO.GetComponent<Player>());
     }
-    
+
     void Update() => scoreText.text = Game.game.Score.ToString();
-    
+
     void FixedUpdate()
     {
         if (Mathf.Abs(transform.anchoredPosition.y) > Mathf.Abs(transform.anchoredPosition.x))
@@ -47,6 +45,6 @@ public class OffScreen : MonoBehaviour
 
     void OnDestroy()
     {
-        if (shadowGO) Destroy(shadowGO.gameObject);
+        if (shadowGO != null && shadowGO.gameObject) Destroy(shadowGO.gameObject);
     }
 }

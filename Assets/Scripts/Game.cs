@@ -1,71 +1,53 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
     public static Game game;
-    public static Player Player;
     public static Camera Camera;
     public static bool IsPlaying;
     public static float PlayerSpeedMultiplier, PlayerShootSpeed;
-    public int Score { get => _score; set { _score = value; game.ScoreText.text = value.ToString(); } }
+    public int Score { get => _score; set { _score = value; Player.ScoreText.text = value.ToString(); } }
 
     int _score = 0;
+    int MaxScore = 0;
+
     public List<Movable> Movables = new List<Movable>();
     public Queue<Meteor> MeteorPool = new Queue<Meteor>();
     public Queue<Bullet> BulletPool = new Queue<Bullet>();
     Queue<ParticleSystem> DeathParticlePool = new Queue<ParticleSystem>();
     List<ParticleSystem> DeathParticles = new List<ParticleSystem>();
 
-    Dictionary<MeteorEffectType, Material> MeteorMaterials = new Dictionary<MeteorEffectType, Material>();
-
     [SerializeField]
-    Player player = null;
+    public Player Player;
+    [SerializeField]
+    GameObject PlayerPrefab = null, BulletPrefab = null, MeteorPrefab = null, DeathParticlePrefab = null;
     [SerializeField]
     public RectTransform GamePlaceholder = null;
     [SerializeField]
-    GameObject BulletPrefab = null, MeteorPrefab = null, DeathParticlePrefab = null;
-    [SerializeField]
-    TextMeshProUGUI ScoreText = null;
-    [SerializeField]
     RectTransform ParticlesParent = null, MeteorsParent = null, BulletsParent = null;
+    [SerializeField]
+    TextMeshProUGUI GameOverScoreText = null;
 
     public float TimeScale = 1f;
     Vector2 MaxWorldPos;
 
     Vector2 _pos;
 
-    void Awake()
-    {
-        game = this;
-
-        Movables.Clear();
-        MeteorPool.Clear();
-        DeathParticlePool.Clear();
-        DeathParticles.Clear();
-
-        Score = 0;
-        PlayerSpeedMultiplier = 1f;
-        PlayerShootSpeed = 1f;
-    }
-
     void Start()
     {
+        game = this;
         Camera = Camera.main;
-        Player = player;
         MaxWorldPos = Camera.ViewportToWorldPoint(Vector3.one);
 
-        StartCoroutine(SpawnMeteorsCoroutine());
-        StartCoroutine(RemoveParticlesCoroutine());
+        LoadSettings();
 
-        Prefs.UpdateCameraPrefs(Camera);
-
-        IsPlaying = true;
+        gameObject.SetActive(false);
     }
 
     void Update()
@@ -86,6 +68,65 @@ public class Game : MonoBehaviour
         CastColliders();
     }
 
+    ///
+
+    public void SaveSettings() =>
+        File.WriteAllLines(Path.Combine(Application.persistentDataPath, "config.cfg"), new string[] { MaxScore.ToString(), Prefs.Bloom.ToString(), Prefs.Chroma.ToString(), Prefs.Grain.ToString(), Prefs.Lens.ToString() });
+
+    public void LoadSettings()
+    {
+        if (!File.Exists(Path.Combine(Application.persistentDataPath, "config.cfg"))) return;
+
+        var cfg = File.ReadAllLines(Path.Combine(Application.persistentDataPath, "config.cfg"));
+
+        try
+        {
+            MaxScore = int.Parse(cfg[0]);
+            Prefs.Bloom = bool.Parse(cfg[1]);
+            Prefs.Chroma = bool.Parse(cfg[2]);
+            Prefs.Grain = bool.Parse(cfg[3]);
+            Prefs.Lens = bool.Parse(cfg[4]);
+        }
+        catch { }
+
+        Prefs.UpdateCameraPrefs(Camera);
+    }
+
+    ///
+
+    public void StartGame()
+    {
+        Player.transform.localPosition = Vector2.zero;
+        Player.transform.rotation = Quaternion.identity;
+        Player.gameObject.SetActive(true);
+        GameOverScoreText.gameObject.SetActive(false);
+
+        void Delete(params IEnumerable<Component>[] objs)
+        {
+            foreach (var objects in objs)
+                foreach (var obj in objects)
+                    if (obj && obj.gameObject)
+                        Destroy(obj.gameObject);
+        }
+
+        Delete(Movables, MeteorPool, BulletPool, DeathParticlePool, DeathParticles);
+
+        Movables.Clear();
+        MeteorPool.Clear();
+        BulletPool.Clear();
+        DeathParticlePool.Clear();
+        DeathParticles.Clear();
+
+        Score = 0;
+        PlayerSpeedMultiplier = 1f;
+        PlayerShootSpeed = 1f;
+
+        StartCoroutine(SpawnMeteorsCoroutine());
+        StartCoroutine(RemoveParticlesCoroutine());
+
+        IsPlaying = true;
+    }
+
     public void GameOver()
     {
         if (!IsPlaying) return;
@@ -96,23 +137,28 @@ public class Game : MonoBehaviour
             if (movable && movable.gameObject.activeSelf)
             {
                 PlayDeathParticle(movable.transform.position);
-                Destroy(movable.gameObject);
+                Destroy(movable.gameObject); //TODO Death()
             }
 
-        RectTransform tr = ScoreText.GetComponent<RectTransform>();
-        tr.parent = GamePlaceholder;
-        tr.rotation = Quaternion.identity;
-        tr.anchorMax = tr.anchorMin = new Vector2(.5f, .5f);
-        tr.anchoredPosition = Vector2.zero;
+        GameOverScoreText.text = Score.ToString();
+        GameOverScoreText.gameObject.SetActive(true);
 
-        PlayDeathParticle(player.transform.position);
-        Destroy(player.gameObject);
+        PlayDeathParticle(Player.transform.position);
+        Player.gameObject.SetActive(false);
+    }
+
+    void RestartGame()
+    {
+        StopAllCoroutines();
+        StartGame();
     }
 
     public void RestartGameIfNeeded()
     {
-        if (!IsPlaying) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        if (!IsPlaying) RestartGame();
     }
+
+    ///
 
     void MoveMovables()
     {
@@ -154,13 +200,14 @@ public class Game : MonoBehaviour
                 {
                     (movable as Meteor).Effect.PlayEffect();
                     movable.Death();
+
                     return;
                 }
             }
 
             for (int j = 0; j < movables.Length; j++)
             {
-                movable2 = movables[i];
+                movable2 = movables[j];
 
                 if (movable == movable2 || !movable2.gameObject.activeSelf) continue;
 
@@ -208,6 +255,7 @@ public class Game : MonoBehaviour
     public void Shoot()
     {
         Bullet bullet;
+
         if (BulletPool.Count == 0)
         {
             bullet = Instantiate(game.BulletPrefab).GetComponent<Bullet>();
@@ -218,8 +266,8 @@ public class Game : MonoBehaviour
 
         bullet.gameObject.SetActive(true);
         bullet.transform.position = Player.transform.position + Player.transform.up / 40f;
-
         bullet.Direction = Player.transform.up / 20f;
+
         Movables.Add(bullet);
     }
 
@@ -285,7 +333,7 @@ public class Game : MonoBehaviour
 
         /// assign a random effect ///
 
-        meteor.GetComponent<RawImage>().color = meteor.Effect.Color;
+        meteor.RawImage.color = meteor.Effect.Color;
 
         meteor.Direction = -dirToPlayer.normalized / 30f;
         Movables.Add(meteor);
