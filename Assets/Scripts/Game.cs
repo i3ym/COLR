@@ -57,7 +57,7 @@ public class Game : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Backspace))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (IsPlaying) PauseGame();
             else if (IsPaused) MainMenu.Continue();
