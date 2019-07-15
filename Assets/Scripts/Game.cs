@@ -60,7 +60,7 @@ public class Game : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
             if (IsPlaying) PauseGame();
-            else if (IsPaused) ContinueGame();
+            else if (IsPaused) MainMenu.Continue();
         }
 
         if (Input.GetMouseButtonDown(0)) Game.game.RestartGameIfNeeded();
@@ -141,8 +141,7 @@ public class Game : MonoBehaviour
         Time.timeScale = 0f;
         IsPaused = true;
 
-        MainMenu.gameObject.SetActive(true);
-        if (MainMenu.Banner != null) MainMenu.Banner.Show();
+        MainMenu.Pause();
     }
 
     public void ContinueGame()
@@ -349,6 +348,8 @@ public class Game : MonoBehaviour
             meteor.transform.SetParent(MeteorsParent, true);
         }
         else meteor = MeteorPool.Dequeue();
+
+        if (!meteor) return;
 
         meteor.gameObject.SetActive(true);
         meteor.transform.anchoredPosition = spawnPos;

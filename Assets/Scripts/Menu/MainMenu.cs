@@ -1,4 +1,5 @@
 ﻿using GoogleMobileAds.Api;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +10,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField]
     Button StartGameButton = null, ExitButton = null, SettingsButton = null;
 
-    public BannerView Banner;
+    BannerView Banner;
 
     void Start()
     {
@@ -19,11 +20,16 @@ public class MainMenu : MonoBehaviour
         {
             if (Banner != null) Banner.Hide();
 
+            if (Game.IsPaused)
+            {
+                Continue();
+                return;
+            }
+
             gameObject.SetActive(false);
             Game.game.gameObject.SetActive(true);
 
-            if (Game.IsPaused) Game.game.ContinueGame();
-            else Game.game.StartGame();
+            Game.game.StartGame();
         });
 
         ExitButton.onClick.AddListener(Application.Quit);
@@ -39,6 +45,22 @@ public class MainMenu : MonoBehaviour
 #if !UNITY_EDITOR
         CreateAdBanner();
 #endif
+    }
+
+    public void Pause()
+    {
+        gameObject.SetActive(true);
+        if (Banner != null) Banner.Show();
+
+        StartGameButton.GetComponent<TextMeshProUGUI>().text = "продолжить";
+    }
+
+    public void Continue()
+    {
+        gameObject.SetActive(false);
+
+        StartGameButton.GetComponent<TextMeshProUGUI>().text = "начать";
+        Game.game.ContinueGame();
     }
 
     void CreateAdBanner()

@@ -29,15 +29,15 @@ public class MeteorEffect
         {
             Color = new Color(.5f, 1f, .5f, 1f),
                 WaitTime = 10_000,
-                StartAction = () => Game.PlayerSpeedMultiplier++,
-                EndAction = () => Game.PlayerSpeedMultiplier--
+                StartAction = () => Game.PlayerSpeedMultiplier += .5f,
+                EndAction = () => Game.PlayerSpeedMultiplier -= .5f
         });
         Effects.Add(MeteorEffectType.Slowdown, new MeteorEffect()
         {
             Color = new Color(1f, 0f, 0f, 1f),
                 WaitTime = 5_000,
-                StartAction = () => Game.PlayerSpeedMultiplier--,
-                EndAction = () => Game.PlayerSpeedMultiplier++
+                StartAction = () => Game.PlayerSpeedMultiplier -= .5f,
+                EndAction = () => Game.PlayerSpeedMultiplier += .5f
         });
         Effects.Add(MeteorEffectType.FasterShoot, new MeteorEffect()
         {

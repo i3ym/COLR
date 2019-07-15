@@ -39,6 +39,8 @@ public class MobileJoystick : MonoBehaviour
 
         AddCallback(EventTriggerType.PointerDown, (data) =>
         {
+            if (Game.IsPaused) return;
+            
             Dragging = true;
             TouchPos = ((PointerEventData) data).position;
         });
