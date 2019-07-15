@@ -4,13 +4,14 @@ using System.IO;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
     public static Game game;
     public static Camera Camera;
-    public static bool IsPlaying;
+    public static bool IsAlive { get; private set; }
+    public static bool IsPaused { get; private set; }
+    public static bool IsPlaying { get => IsAlive && !IsPaused; }
     public static float PlayerSpeedMultiplier, PlayerShootSpeed;
     public int Score { get => _score; set { _score = value; Player.ScoreText.text = value.ToString(); } }
 
@@ -33,8 +34,9 @@ public class Game : MonoBehaviour
     RectTransform ParticlesParent = null, MeteorsParent = null, BulletsParent = null;
     [SerializeField]
     TextMeshProUGUI GameOverScoreText = null, GameOverHighscoreText = null;
+    [SerializeField]
+    MainMenu MainMenu = null;
 
-    public float TimeScale = 1f;
     Vector2 MaxWorldPos;
 
     Vector2 _pos;
@@ -48,20 +50,25 @@ public class Game : MonoBehaviour
         LoadSettings();
 
         gameObject.SetActive(false);
+
+        IsAlive = true;
+        IsPaused = false;
     }
 
     void Update()
     {
-#if DEBUG
-        Time.timeScale = TimeScale;
-#endif
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            if (IsPlaying) PauseGame();
+            else if (IsPaused) ContinueGame();
+        }
 
         if (Input.GetMouseButtonDown(0)) Game.game.RestartGameIfNeeded();
     }
 
     void FixedUpdate()
     {
-        if (!IsPlaying) return;
+        if (!Game.IsPlaying) return;
 
         Score++;
         MoveMovables();
@@ -125,14 +132,30 @@ public class Game : MonoBehaviour
         StartCoroutine(SpawnMeteorsCoroutine());
         StartCoroutine(RemoveParticlesCoroutine());
 
-        IsPlaying = true;
+        IsAlive = true;
+        IsPaused = false;
+    }
+
+    void PauseGame()
+    {
+        Time.timeScale = 0f;
+        IsPaused = true;
+
+        MainMenu.gameObject.SetActive(true);
+        if (MainMenu.Banner != null) MainMenu.Banner.Show();
+    }
+
+    public void ContinueGame()
+    {
+        Time.timeScale = 1f;
+        IsPaused = false;
     }
 
     public void GameOver()
     {
-        if (!IsPlaying) return;
+        if (!IsAlive) return;
 
-        IsPlaying = false;
+        IsAlive = false;
 
         foreach (var movable in Movables)
             if (movable && movable.gameObject.activeSelf)
@@ -165,7 +188,7 @@ public class Game : MonoBehaviour
 
     public void RestartGameIfNeeded()
     {
-        if (!IsPlaying) RestartGame();
+        if (!IsAlive) RestartGame();
     }
 
     ///
@@ -233,6 +256,8 @@ public class Game : MonoBehaviour
         }
     }
 
+    ///
+
     public void PlayDeathParticle(Vector2 position) => PlayDeathParticle(position, Color.white);
 
     public void PlayDeathParticle(Vector2 position, Color color)
@@ -261,6 +286,8 @@ public class Game : MonoBehaviour
 
         DeathParticles.Add(dp);
     }
+
+    ///
 
     public void Shoot()
     {
@@ -297,13 +324,12 @@ public class Game : MonoBehaviour
     public async void SpawnMeteorNextFrame()
     {
         await Task.Delay((int) (Time.fixedDeltaTime * 1000f));
-        SpawnMeteor();
+
+        if (IsPlaying) SpawnMeteor();
     }
 
     public void SpawnMeteor()
     {
-        if (!IsPlaying) return;
-
         Vector2 spawnPos = new Vector2();
         if (Random.value >.5f)
         {

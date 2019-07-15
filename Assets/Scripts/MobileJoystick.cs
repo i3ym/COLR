@@ -91,8 +91,12 @@ public class MobileJoystick : MonoBehaviour
 
     IEnumerator ShootCoroutine()
     {
-        while (Game.IsPlaying)
+        var wfi = new WaitUntil(() => Game.IsPlaying);
+
+        while (true)
         {
+            if (!Game.IsPlaying) yield return wfi;
+
             Game.game.Player.Shoot();
             yield return null;
         }

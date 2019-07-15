@@ -9,7 +9,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField]
     Button StartGameButton = null, ExitButton = null, SettingsButton = null;
 
-    BannerView Banner;
+    public BannerView Banner;
 
     void Start()
     {
@@ -18,11 +18,12 @@ public class MainMenu : MonoBehaviour
         StartGameButton.onClick.AddListener(() =>
         {
             if (Banner != null) Banner.Hide();
-            
-            gameObject.SetActive(false);
 
+            gameObject.SetActive(false);
             Game.game.gameObject.SetActive(true);
-            Game.game.StartGame();
+
+            if (Game.IsPaused) Game.game.ContinueGame();
+            else Game.game.StartGame();
         });
 
         ExitButton.onClick.AddListener(Application.Quit);
