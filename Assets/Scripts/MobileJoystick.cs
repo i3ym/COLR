@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -92,7 +91,7 @@ public class MobileJoystick : MonoBehaviour
 
     IEnumerator ShootCoroutine()
     {
-        while (true)
+        while (Game.IsPlaying)
         {
             Game.game.Player.Shoot();
             yield return null;

@@ -9,12 +9,12 @@ public class MeteorEffect
 
     public Color Color { get; private set; }
     public Material Material;
+    public bool IsPlaying = false;
 
     Action StartAction;
     Action EndAction;
     int EffectCount = 0;
     int WaitTime = 5000;
-    bool IsPlaying = false;
 
     static MeteorEffect()
     {

@@ -17,6 +17,7 @@ public class Meteor : Movable
     {
         base.Death();
 
+        Effect.IsPlaying = false;
         Game.game.MeteorPool.Enqueue(this);
         Game.game.PlayDeathParticle(transform.position, Effect.Color);
 

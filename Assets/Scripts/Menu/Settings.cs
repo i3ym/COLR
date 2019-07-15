@@ -47,5 +47,7 @@ public class Settings : MonoBehaviour
     {
         opt = !opt;
         Prefs.UpdateCameraPrefs(Camera);
+
+        Game.game.SaveSettings();
     }
 }

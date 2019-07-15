@@ -15,7 +15,7 @@ public class Game : MonoBehaviour
     public int Score { get => _score; set { _score = value; Player.ScoreText.text = value.ToString(); } }
 
     int _score = 0;
-    int MaxScore = 0;
+    int Highscore = 0;
 
     public List<Movable> Movables = new List<Movable>();
     public Queue<Meteor> MeteorPool = new Queue<Meteor>();
@@ -32,7 +32,7 @@ public class Game : MonoBehaviour
     [SerializeField]
     RectTransform ParticlesParent = null, MeteorsParent = null, BulletsParent = null;
     [SerializeField]
-    TextMeshProUGUI GameOverScoreText = null;
+    TextMeshProUGUI GameOverScoreText = null, GameOverHighscoreText = null;
 
     public float TimeScale = 1f;
     Vector2 MaxWorldPos;
@@ -71,7 +71,7 @@ public class Game : MonoBehaviour
     ///
 
     public void SaveSettings() =>
-        File.WriteAllLines(Path.Combine(Application.persistentDataPath, "config.cfg"), new string[] { MaxScore.ToString(), Prefs.Bloom.ToString(), Prefs.Chroma.ToString(), Prefs.Grain.ToString(), Prefs.Lens.ToString() });
+        File.WriteAllLines(Path.Combine(Application.persistentDataPath, "config.cfg"), new string[] { Highscore.ToString(), Prefs.Bloom.ToString(), Prefs.Chroma.ToString(), Prefs.Grain.ToString(), Prefs.Lens.ToString() });
 
     public void LoadSettings()
     {
@@ -81,7 +81,7 @@ public class Game : MonoBehaviour
 
         try
         {
-            MaxScore = int.Parse(cfg[0]);
+            Highscore = int.Parse(cfg[0]);
             Prefs.Bloom = bool.Parse(cfg[1]);
             Prefs.Chroma = bool.Parse(cfg[2]);
             Prefs.Grain = bool.Parse(cfg[3]);
@@ -100,6 +100,7 @@ public class Game : MonoBehaviour
         Player.transform.rotation = Quaternion.identity;
         Player.gameObject.SetActive(true);
         GameOverScoreText.gameObject.SetActive(false);
+        GameOverHighscoreText.gameObject.SetActive(false);
 
         void Delete(params IEnumerable<Component>[] objs)
         {
@@ -140,8 +141,17 @@ public class Game : MonoBehaviour
                 Destroy(movable.gameObject); //TODO Death()
             }
 
+        if (Highscore < Score)
+        {
+            Highscore = Score;
+            SaveSettings();
+        }
+
         GameOverScoreText.text = Score.ToString();
         GameOverScoreText.gameObject.SetActive(true);
+
+        GameOverHighscoreText.text = "рекорд: " + Highscore.ToString();
+        GameOverHighscoreText.gameObject.SetActive(true);
 
         PlayDeathParticle(Player.transform.position);
         Player.gameObject.SetActive(false);
