@@ -9,8 +9,8 @@ public class Player : MonoBehaviour
     bool DoShoot = false;
     float LastShootTime = 0f;
 
-    RectTransform ShadowGO;
-    TextMeshProUGUI ShadowScoreText;
+    [HideInInspector]
+    public OffScreen OffScreen = null;
 
     [HideInInspector]
     public new RectTransform transform = null;
@@ -21,6 +21,8 @@ public class Player : MonoBehaviour
     {
         transform = gameObject.transform as RectTransform;
         ScoreText = transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+
+        OffScreen = GetComponent<OffScreen>();
     }
 
     void FixedUpdate()

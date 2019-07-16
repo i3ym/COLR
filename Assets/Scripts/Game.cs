@@ -235,6 +235,17 @@ public class Game : MonoBehaviour
 
                     return;
                 }
+
+                rect2 = Player.OffScreen.shadowGO.rect;
+                rect2.center = Player.OffScreen.shadowGO.anchoredPosition;
+
+                if (rect1.Overlaps(rect2))
+                {
+                    (movable as Meteor).Effect.PlayEffect();
+                    movable.Death();
+
+                    return;
+                }
             }
 
             for (int j = 0; j < movables.Length; j++)

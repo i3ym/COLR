@@ -3,9 +3,12 @@ using UnityEngine;
 
 public class OffScreen : MonoBehaviour
 {
-    RectTransform shadowGO;
+    [HideInInspector]
+    public RectTransform shadowGO;
     new RectTransform transform;
     TextMeshProUGUI scoreText;
+
+    Vector2 _pos = new Vector2();
 
     void Start()
     {
@@ -22,19 +25,22 @@ public class OffScreen : MonoBehaviour
 
     void FixedUpdate()
     {
+        shadowGO.rotation = transform.rotation;
+
+        _pos = transform.anchoredPosition;
+
         if (Mathf.Abs(transform.anchoredPosition.y) > Mathf.Abs(transform.anchoredPosition.x))
         {
-            if (transform.anchoredPosition.y > 0) shadowGO.anchorMax = shadowGO.anchorMin = new Vector2(.5f, -.5f);
-            else shadowGO.anchorMax = shadowGO.anchorMin = new Vector2(.5f, 1.5f);
+            if (transform.anchoredPosition.y > 0) _pos.y -= Game.game.GamePlaceholder.rect.height;
+            else _pos.y += Game.game.GamePlaceholder.rect.height;
         }
         else
         {
-            if (transform.anchoredPosition.x > 0) shadowGO.anchorMax = shadowGO.anchorMin = new Vector2(-.5f, .5f);
-            else shadowGO.anchorMax = shadowGO.anchorMin = new Vector2(1.5f, .5f);
+            if (transform.anchoredPosition.x > 0) _pos.x -= Game.game.GamePlaceholder.rect.width;
+            else _pos.x += Game.game.GamePlaceholder.rect.width;
         }
 
-        shadowGO.anchoredPosition = transform.anchoredPosition;
-        shadowGO.rotation = transform.rotation;
+        shadowGO.anchoredPosition = _pos;
 
         if (transform.anchoredPosition.x > Game.game.GamePlaceholder.rect.size.x / 2) transform.anchoredPosition -= new Vector2(Game.game.GamePlaceholder.rect.size.x, 0f);
         else if (transform.anchoredPosition.x < -Game.game.GamePlaceholder.rect.size.x / 2) transform.anchoredPosition += new Vector2(Game.game.GamePlaceholder.rect.size.x, 0f);
