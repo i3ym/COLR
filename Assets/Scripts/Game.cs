@@ -136,7 +136,7 @@ public class Game : MonoBehaviour
         IsPaused = false;
     }
 
-    void PauseGame()
+    public void PauseGame()
     {
         Time.timeScale = 0f;
         IsPaused = true;
@@ -248,6 +248,8 @@ public class Game : MonoBehaviour
 
                 if (rect1.Overlaps(rect2))
                 {
+                    if (movable2 is Bullet && (movable as Meteor).EffectType != MeteorEffectType.None) (movable as Meteor).Effect.PlayEffect();
+
                     movable.Death();
                     movable2.Death();
                 }

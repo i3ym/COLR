@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class MobileJoystick : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class MobileJoystick : MonoBehaviour
     RectTransform Knob = null;
     [SerializeField]
     EventTrigger ShootTrigger = null;
+    [SerializeField]
+    Button PauseButton = null;
 
     EventTrigger Trigger;
     new RectTransform transform;
@@ -19,6 +22,13 @@ public class MobileJoystick : MonoBehaviour
 
     void Start()
     {
+        if (Application.platform != RuntimePlatform.LinuxEditor && Application.platform != RuntimePlatform.Android)
+        {
+            Destroy(PauseButton.gameObject);
+            Destroy(gameObject);
+            return;
+        }
+
         Horizontal = Vertical = 0f;
 
         transform = gameObject.transform as RectTransform;
@@ -40,7 +50,7 @@ public class MobileJoystick : MonoBehaviour
         AddCallback(EventTriggerType.PointerDown, (data) =>
         {
             if (Game.IsPaused) return;
-            
+
             Dragging = true;
             TouchPos = ((PointerEventData) data).position;
         });
@@ -67,6 +77,8 @@ public class MobileJoystick : MonoBehaviour
 
             Game.game.RestartGameIfNeeded();
         }, ShootTrigger);
+
+        PauseButton.onClick.AddListener(() => Game.game.PauseGame());
     }
 
     void Update()

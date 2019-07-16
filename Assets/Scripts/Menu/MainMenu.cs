@@ -9,6 +9,8 @@ public class MainMenu : MonoBehaviour
     GameObject Settings = null;
     [SerializeField]
     Button StartGameButton = null, ExitButton = null, SettingsButton = null;
+    [SerializeField]
+    GameObject[] ObjectsToHideOnPause = null;
 
     BannerView Banner;
 
@@ -32,15 +34,17 @@ public class MainMenu : MonoBehaviour
             Game.game.StartGame();
         });
 
-        ExitButton.onClick.AddListener(Application.Quit);
-
         SettingsButton.onClick.AddListener(() =>
         {
             Settings.SetActive(true);
             gameObject.SetActive(false);
         });
 
+        ExitButton.onClick.AddListener(Application.Quit);
+
         Settings.SetActive(true);
+
+        if (Application.platform == RuntimePlatform.WebGLPlayer) ExitButton.gameObject.SetActive(false);
 
 #if !UNITY_EDITOR
         CreateAdBanner();
@@ -52,12 +56,16 @@ public class MainMenu : MonoBehaviour
         gameObject.SetActive(true);
         if (Banner != null) Banner.Show();
 
+        foreach (GameObject obj in ObjectsToHideOnPause) obj.SetActive(false);
+
         StartGameButton.GetComponent<TextMeshProUGUI>().text = "продолжить";
     }
 
     public void Continue()
     {
         gameObject.SetActive(false);
+
+        foreach (GameObject obj in ObjectsToHideOnPause) obj.SetActive(true);
 
         StartGameButton.GetComponent<TextMeshProUGUI>().text = "начать";
         Game.game.ContinueGame();

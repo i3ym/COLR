@@ -71,8 +71,8 @@ public class Player : MonoBehaviour
 
     void PCInput()
     {
-        MovePlayer(Input.GetAxis(Vertical), -Input.GetAxis(Horizontal));
+        MovePlayer(Input.GetAxis(Vertical) / 5f, -Input.GetAxis(Horizontal));
 
-        if (Input.GetKey(KeyCode.Space)) DoShoot = true;
+        if (Input.GetKey(KeyCode.Space)) Shoot();
     }
 }
