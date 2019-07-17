@@ -54,6 +54,7 @@ public class MainMenu : MonoBehaviour
     public void Pause()
     {
         gameObject.SetActive(true);
+
         if (Banner != null) Banner.Show();
 
         foreach (GameObject obj in ObjectsToHideOnPause) obj.SetActive(false);
@@ -64,6 +65,7 @@ public class MainMenu : MonoBehaviour
     public void Continue()
     {
         gameObject.SetActive(false);
+        Settings.gameObject.SetActive(false);
 
         foreach (GameObject obj in ObjectsToHideOnPause) obj.SetActive(true);
 

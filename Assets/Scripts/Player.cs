@@ -16,11 +16,14 @@ public class Player : MonoBehaviour
     public new RectTransform transform = null;
     [HideInInspector]
     public TextMeshProUGUI ScoreText = null;
+    [HideInInspector]
+    public AudioSource ShootSound = null;
 
     void Awake()
     {
         transform = gameObject.transform as RectTransform;
         ScoreText = transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+        ShootSound = GetComponent<AudioSource>();
 
         OffScreen = GetComponent<OffScreen>();
     }

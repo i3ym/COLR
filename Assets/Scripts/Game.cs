@@ -36,6 +36,8 @@ public class Game : MonoBehaviour
     TextMeshProUGUI GameOverScoreText = null, GameOverHighscoreText = null;
     [SerializeField]
     MainMenu MainMenu = null;
+    [SerializeField]
+    public AudioSource Music = null;
 
     Vector2 MaxWorldPos;
 
@@ -78,7 +80,10 @@ public class Game : MonoBehaviour
     ///
 
     public void SaveSettings() =>
-        File.WriteAllLines(Path.Combine(Application.persistentDataPath, "config.cfg"), new string[] { Highscore.ToString(), Prefs.Bloom.ToString(), Prefs.Chroma.ToString(), Prefs.Grain.ToString(), Prefs.Lens.ToString() });
+        File.WriteAllLines(Path.Combine(Application.persistentDataPath, "config.cfg"), new string[]
+        {
+            Highscore.ToString(), Prefs.Bloom.ToString(), Prefs.Chroma.ToString(), Prefs.Grain.ToString(), Prefs.Lens.ToString(), (Music.volume * 100f).ToString(), (Player.ShootSound.volume * 100f).ToString()
+        });
 
     public void LoadSettings()
     {
@@ -93,6 +98,9 @@ public class Game : MonoBehaviour
             Prefs.Chroma = bool.Parse(cfg[2]);
             Prefs.Grain = bool.Parse(cfg[3]);
             Prefs.Lens = bool.Parse(cfg[4]);
+
+            Music.volume = float.Parse(cfg[5]) / 100f;
+            Player.ShootSound.volume = float.Parse(cfg[6]) / 100f;
         }
         catch { }
 
