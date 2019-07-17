@@ -380,6 +380,7 @@ public class Game : MonoBehaviour
         else if (randomEffect >.96) meteor.EffectType = MeteorEffectType.Slowdown;
         else if (randomEffect >.94) meteor.EffectType = MeteorEffectType.FasterShoot;
         else if (randomEffect >.92) meteor.EffectType = MeteorEffectType.SlowerShoot;
+        else meteor.EffectType = MeteorEffectType.None;
 
         /// assign a random effect ///
 
