@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.UI;
 
@@ -7,7 +8,7 @@ public class Settings : MonoBehaviour
     [SerializeField]
     GameObject SettingsObj = null, MainMenu = null, Graphics = null, Audio = null;
     [SerializeField]
-    Button GraphicsButton = null, BackButton = null, AudioButton = null;
+    Button GraphicsButton = null, LanguageButton = null, AudioButton = null, BackButton = null;
     [SerializeField]
     Button GraphicsBloomButton = null, GraphicsGrainButton = null, GraphicsChromaButton = null, GraphicsLensButton = null, GraphicsBackButton = null;
     [SerializeField]
@@ -27,6 +28,7 @@ public class Settings : MonoBehaviour
             Graphics.SetActive(true);
             SettingsObj.SetActive(false);
         });
+        LanguageButton.onClick.AddListener(() => Game.SetLanguage((Language) ((((int) Prefs.Lang) + 1) % Enum.GetValues(typeof(Language)).Length)));
         AudioButton.onClick.AddListener(() =>
         {
             AudioMusicSlider.value = Game.game.Music.volume;

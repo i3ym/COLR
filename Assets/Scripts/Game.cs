@@ -15,6 +15,7 @@ public class Game : MonoBehaviour
     public static bool IsPaused { get; private set; }
     public static bool IsPlaying { get => IsAlive && !IsPaused; }
     public static float PlayerSpeedMultiplier, PlayerShootSpeed;
+    public static List<LocalizedText> LocalizedTexts = new List<LocalizedText>();
     public int Score { get => _score; set { _score = value; Player.ScoreText.text = value.ToString(); } }
 
     int _score = 0;
@@ -27,7 +28,7 @@ public class Game : MonoBehaviour
     [SerializeField]
     public Player Player;
     [SerializeField]
-    GameObject PlayerPrefab = null, DeathParticlePrefab = null;
+    GameObject DeathParticlePrefab = null;
     [SerializeField]
     public RectTransform GamePlaceholder = null;
     [SerializeField]
@@ -52,6 +53,8 @@ public class Game : MonoBehaviour
     Movable _Movable1, _Movable2;
     Movable[] _Movables;
 
+    void Awake() => LocalizedTexts.Clear();
+
     void Start()
     {
         game = this;
@@ -64,6 +67,8 @@ public class Game : MonoBehaviour
 
         IsAlive = true;
         IsPaused = false;
+
+        SetLanguage(Prefs.Lang);
     }
 
     void Update()
@@ -92,7 +97,8 @@ public class Game : MonoBehaviour
     public void SaveSettings() =>
         File.WriteAllLines(Path.Combine(Application.persistentDataPath, "config.cfg"), new string[]
         {
-            Highscore.ToString(), Prefs.Bloom.ToString(), Prefs.Chroma.ToString(), Prefs.Grain.ToString(), Prefs.Lens.ToString(), (Music.volume * 100f).ToString(), (Player.ShootSound.volume * 100f).ToString()
+            Highscore.ToString(), Prefs.Bloom.ToString(), Prefs.Chroma.ToString(), Prefs.Grain.ToString(), Prefs.Lens.ToString(),
+                (Music.volume * 100f).ToString(), (Player.ShootSound.volume * 100f).ToString(), ((int) Prefs.Lang).ToString()
         });
 
     public void LoadSettings()
@@ -111,6 +117,9 @@ public class Game : MonoBehaviour
 
             Music.volume = float.Parse(cfg[5]) / 100f;
             Player.ShootSound.volume = float.Parse(cfg[6]) / 100f;
+
+            Prefs.Lang = (Language) int.Parse(cfg[7]);
+            SetLanguage(Prefs.Lang);
         }
         catch { }
 
@@ -416,5 +425,13 @@ public class Game : MonoBehaviour
 
             yield return wff;
         }
+    }
+
+    ///
+
+    public static void SetLanguage(Language lang)
+    {
+        Prefs.Lang = lang;
+        foreach (var localizer in LocalizedTexts) localizer.SetLanguage(lang);
     }
 }

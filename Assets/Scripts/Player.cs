@@ -6,7 +6,6 @@ public class Player : MonoBehaviour
 {
     const string Horizontal = "Horizontal";
     const string Vertical = "Vertical";
-    bool DoShoot = false;
     float LastShootTime = 0f;
 
     [HideInInspector]

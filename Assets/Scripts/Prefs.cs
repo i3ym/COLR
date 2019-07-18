@@ -1,13 +1,18 @@
+using System;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
 public static class Prefs
 {
     public static bool Bloom, Grain, Chroma, Lens;
+    public static Language Lang;
 
     static Prefs()
     {
         Bloom = Grain = Chroma = Lens = true;
+
+        if (!Enum.TryParse<Language>(Application.systemLanguage.ToString(), out Lang))
+            Lang = Language.Russian;
     }
 
     public static void UpdateCameraPrefs(Camera camera)
