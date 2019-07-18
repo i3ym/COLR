@@ -2,9 +2,6 @@
 
 public class Bullet : Movable
 {
-    public override void Death()
-    {
-        base.Death();
-        Game.game.BulletPool.Enqueue(this);
-    }
+    public override float SizeX => 10f;
+    public override float SizeY => SizeX;
 }

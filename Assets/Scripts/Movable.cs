@@ -1,28 +1,16 @@
-﻿using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
-public abstract class Movable : MonoBehaviour
+public abstract class Movable
 {
-    [HideInInspector]
-    public RawImage RawImage;
-    [HideInInspector]
-    public new RectTransform transform;
+    public abstract float SizeX { get; }
+    public abstract float SizeY { get; }
 
-    [HideInInspector]
-    public Vector3 Direction;
-
-    void Awake()
-    {
-        transform = gameObject.transform as RectTransform;
-        RawImage = GetComponent<RawImage>();
-    }
+    public bool IsAlive = true;
+    public Vector2 Position, Direction;
 
     public virtual void Death()
     {
-        StopAllCoroutines();
-
+        IsAlive = false;
         Game.game.Movables.Remove(this);
-        gameObject.SetActive(false);
     }
 }

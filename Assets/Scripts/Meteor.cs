@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class Meteor : Movable
 {
-    [HideInInspector]
+    public override float SizeX => 30f;
+    public override float SizeY => SizeX;
+
     public MeteorEffect Effect { get => MeteorEffect.Effects[EffectType]; }
     public MeteorEffectType EffectType = MeteorEffectType.None;
 
@@ -18,8 +20,7 @@ public class Meteor : Movable
         base.Death();
 
         Effect.IsPlaying = false;
-        Game.game.MeteorPool.Enqueue(this);
-        Game.game.PlayDeathParticle(transform.position, Effect.Color);
+        Game.game.PlayDeathParticle(Position, Effect.Color);
 
         if (Game.IsPlaying) Game.game.SpawnMeteorNextFrame();
     }

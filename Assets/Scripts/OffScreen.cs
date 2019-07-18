@@ -19,6 +19,7 @@ public class OffScreen : MonoBehaviour
 
         Destroy(shadowGO.GetComponent<OffScreen>());
         Destroy(shadowGO.GetComponent<Player>());
+        Destroy(shadowGO.GetComponent<AudioSource>());
     }
 
     void Update() => scoreText.text = Game.game.Score.ToString();
