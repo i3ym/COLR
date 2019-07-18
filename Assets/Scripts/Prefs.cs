@@ -12,7 +12,7 @@ public static class Prefs
         Bloom = Grain = Chroma = Lens = true;
 
         if (!Enum.TryParse<Language>(Application.systemLanguage.ToString(), out Lang))
-            Lang = Language.Russian;
+            Lang = Language.English;
     }
 
     public static void UpdateCameraPrefs(Camera camera)

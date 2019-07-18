@@ -3394,6 +3394,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1110297395}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1125345298 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1193496193851635818, guid: 6e460b7aff332cd5aafea2be961467f1,
+    type: 3}
+  m_PrefabInstance: {fileID: 2073825075}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1198628331
 GameObject:
   m_ObjectHideFlags: 0
@@ -4461,8 +4473,9 @@ MonoBehaviour:
   Graphics: {fileID: 1673094184}
   Audio: {fileID: 1360014631}
   GraphicsButton: {fileID: 1441018941}
-  BackButton: {fileID: 1061437271}
+  LanguageButton: {fileID: 1125345298}
   AudioButton: {fileID: 1815938071}
+  BackButton: {fileID: 1061437271}
   GraphicsBloomButton: {fileID: 655836565}
   GraphicsGrainButton: {fileID: 948955718}
   GraphicsChromaButton: {fileID: 499822285}

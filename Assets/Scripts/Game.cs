@@ -182,7 +182,7 @@ public class Game : MonoBehaviour
         GameOverScoreText.text = Score.ToString();
         GameOverScoreText.gameObject.SetActive(true);
 
-        GameOverHighscoreText.text = "рекорд: " + Highscore.ToString();
+        GameOverHighscoreText.text = LocalizedText.GetTranslation("text.Highscore", Prefs.Lang) + ": " + Highscore.ToString();
         GameOverHighscoreText.gameObject.SetActive(true);
 
         PlayDeathParticle(Player.transform.position);

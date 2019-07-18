@@ -25,6 +25,8 @@ public class LocalizedText : MonoBehaviour
         Translations.Add("audiomenu.Sounds", new Translation((Language.Russian, "Звуки"), (Language.English, "Sounds")));
 
         Translations.Add("menu.Back", new Translation((Language.Russian, "Назад"), (Language.English, "Back")));
+        
+        Translations.Add("text.Highscore", new Translation((Language.Russian, "Рекорд"), (Language.English, "Highscore")));
     }
 
     void Start()
@@ -43,17 +45,16 @@ public class LocalizedText : MonoBehaviour
 
     public void SetLanguage(Language lang)
     {
-        if (string.IsNullOrWhiteSpace(TextID)) return;
+        if (!string.IsNullOrWhiteSpace(TextID)) Text.text = GetTranslation(TextID, lang);
+    }
 
-        try
-        {
-            Text.text = Translations[TextID][lang];
-        }
-        catch
-        {
-            Debug.LogError("Could not found translation for GameObject '" + name + "'. TextID: '" + TextID + "', Language: '" + lang.ToString() + "'");
-            Text.text = TextID;
-        }
+    public static string GetTranslation(string textID, Language lang)
+    {
+        if (Translations.ContainsKey(textID) && Translations[textID].ContainsKey(lang))
+            return Translations[textID][lang];
+
+        Debug.LogError("Could not found translation for TextID: '" + textID + "', Language: '" + lang.ToString() + "'");
+        return textID;
     }
 }
 
@@ -69,6 +70,8 @@ public struct Translation
     }
 
     public string this [Language lang] => Translations[lang];
+
+    public bool ContainsKey(Language lang) => Translations.ContainsKey(lang);
 }
 
 public enum Language
