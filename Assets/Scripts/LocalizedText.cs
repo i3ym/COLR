@@ -14,6 +14,7 @@ public class LocalizedText : MonoBehaviour
     static LocalizedText()
     {
         Translations.Add("mainmenu.Start", new Translation((Language.Russian, "Начать"), (Language.English, "Start")));
+        Translations.Add("mainmenu.Continue", new Translation((Language.Russian, "Продолжить"), (Language.English, "Continue")));
         Translations.Add("mainmenu.Settings", new Translation((Language.Russian, "Настройки"), (Language.English, "Settings")));
         Translations.Add("mainmenu.Quit", new Translation((Language.Russian, "Выйти"), (Language.English, "Quit")));
 

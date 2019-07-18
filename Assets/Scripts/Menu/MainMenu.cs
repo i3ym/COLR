@@ -8,7 +8,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField]
     GameObject Settings = null;
     [SerializeField]
-    Button StartGameButton = null, ExitButton = null, SettingsButton = null;
+    Button StartGameButton = null, ContinueButton = null, ExitButton = null, SettingsButton = null;
     [SerializeField]
     GameObject[] ObjectsToHideOnPause = null;
 
@@ -22,16 +22,19 @@ public class MainMenu : MonoBehaviour
         {
             if (Banner != null) Banner.Hide();
 
-            if (Game.IsPaused)
-            {
-                Continue();
-                return;
-            }
-
             gameObject.SetActive(false);
             Game.game.gameObject.SetActive(true);
 
             Game.game.StartGame();
+        });
+
+        ContinueButton.onClick.AddListener(() =>
+        {
+            if (Banner != null) Banner.Hide();
+            Continue();
+
+            ContinueButton.gameObject.SetActive(false);
+            StartGameButton.gameObject.SetActive(true);
         });
 
         SettingsButton.onClick.AddListener(() =>
@@ -43,6 +46,7 @@ public class MainMenu : MonoBehaviour
         ExitButton.onClick.AddListener(Application.Quit);
 
         Settings.SetActive(true);
+        ContinueButton.gameObject.SetActive(false);
 
         if (Application.platform == RuntimePlatform.WebGLPlayer) ExitButton.gameObject.SetActive(false);
 
@@ -53,6 +57,8 @@ public class MainMenu : MonoBehaviour
 
     public void Pause()
     {
+        ContinueButton.gameObject.SetActive(true);
+        StartGameButton.gameObject.SetActive(false);
         gameObject.SetActive(true);
 
         if (Banner != null) Banner.Show();
