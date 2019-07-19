@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -24,6 +25,7 @@ public class Game : MonoBehaviour
     public MovablesList Movables = new MovablesList();
     Queue<ParticleSystem> DeathParticlePool = new Queue<ParticleSystem>();
     List<ParticleSystem> DeathParticles = new List<ParticleSystem>();
+    Vector2 MaxCanvasPos;
 
     [SerializeField]
     public Player Player;
@@ -42,8 +44,6 @@ public class Game : MonoBehaviour
     [SerializeField]
     RawImage MovablesRenderer = null;
 
-    Vector2 MaxCanvasPos;
-
     Vector4[] _Meteors = new Vector4[100];
     Color[] _MeteorColors = new Color[100];
     Vector4[] _Bullets = new Vector4[50];
@@ -52,6 +52,7 @@ public class Game : MonoBehaviour
 
     Movable _Movable1, _Movable2;
     Movable[] _Movables;
+    int _LastMeteorsCount, _LastBulletsCount;
 
     void Awake() => LocalizedTexts.Clear();
 
@@ -235,6 +236,7 @@ public class Game : MonoBehaviour
 
     ///
 
+    [MethodImpl(256)]
     void MoveMovables()
     {
         foreach (var movable in _Movables)
@@ -251,16 +253,20 @@ public class Game : MonoBehaviour
 
     ///
 
+    [MethodImpl(256)]
     bool Overlaps(Movable mov1, Movable mov2) => Overlaps(mov1.Position, mov1.SizeX, mov1.SizeY, mov2.Position, mov2.SizeX, mov2.SizeY);
 
+    [MethodImpl(256)]
     bool Overlaps(Movable mov1, Vector2 center2, Vector2 size2) => Overlaps(mov1.Position, mov1.SizeX, mov1.SizeY, center2, size2.x, size2.y);
 
+    [MethodImpl(256)]
     bool Overlaps(Vector2 center1, float size1X, float size1Y, Vector2 center2, float size2X, float size2Y)
     {
         var diff = center1 - center2;
         return (Mathf.Abs(diff.x) < (size2X + size1X) / 2f) && (Mathf.Abs(diff.y) < (size2Y + size1Y) / 2f);
     }
 
+    [MethodImpl(256)]
     void CastColliders()
     {
         for (int i = 0; i < _Movables.Length; i++)
@@ -306,21 +312,28 @@ public class Game : MonoBehaviour
 
     void RedrawMovables()
     {
-        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var meteorCount = Movables.Meteors.Count;
+        var bulletCount = Movables.Meteors.Count;
 
         if (Movables.Count == 0)
         {
-            MovablesRenderer.material.SetVector("_Counts", Vector2.zero);
+            if (meteorCount != _LastMeteorsCount || bulletCount != _LastBulletsCount)
+            {
+                _LastMeteorsCount = meteorCount;
+                _LastBulletsCount = bulletCount;
+
+                MovablesRenderer.material.SetVector("_Counts", new Vector2(meteorCount, bulletCount));
+            }
             return;
         }
 
-        var sw1 = sw.ElapsedTicks;
+        if (meteorCount != _LastMeteorsCount || bulletCount != _LastBulletsCount)
+        {
+            _LastMeteorsCount = meteorCount;
+            _LastBulletsCount = bulletCount;
 
-        int meteorCount = Movables.Meteors.Count();
-
-        MovablesRenderer.material.SetVector("_Counts", new Vector2(meteorCount, Movables.Count - meteorCount));
-
-        var sw2 = sw.ElapsedTicks;
+            MovablesRenderer.material.SetVector("_Counts", new Vector2(meteorCount, bulletCount));
+        }
 
         if (meteorCount != 0)
         {
@@ -330,16 +343,12 @@ public class Game : MonoBehaviour
             Movables.Meteors.Select(x => x.Effect.Color).ToArray().CopyTo(_MeteorColors, 0);
             MovablesRenderer.material.SetColorArray("_MeteorColors", _MeteorColors);
         }
-        var sw3 = sw.ElapsedTicks;
 
-        if (Movables.Bullets.Count() != 0)
+        if (bulletCount != 0)
         {
             Movables.Bullets.Select(x => MovableToScreenPos(x)).ToArray().CopyTo(_Bullets, 0);
             MovablesRenderer.material.SetVectorArray("_Bullets", _Bullets);
         }
-
-        Debug.Log("REDRAW" + sw1 + "/" + sw2 + "/" + sw3);
-        sw.Stop();
     }
 
     ///
