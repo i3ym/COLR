@@ -21,7 +21,7 @@ public class Game : MonoBehaviour
     int _score = 0;
     int Highscore = 0;
 
-    public List<Movable> Movables = new List<Movable>();
+    public MovablesList Movables = new MovablesList();
     Queue<ParticleSystem> DeathParticlePool = new Queue<ParticleSystem>();
     List<ParticleSystem> DeathParticles = new List<ParticleSystem>();
 
@@ -86,10 +86,27 @@ public class Game : MonoBehaviour
     {
         if (!Game.IsPlaying) return;
 
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+
         Score++;
+        _Movables = Movables.ToArray();
+
+        var arr = sw.ElapsedTicks;
+
         MoveMovables();
-        RedrawMovables();
+
+        var moved = sw.ElapsedTicks - arr;
+
         CastColliders();
+
+        var castd = sw.ElapsedTicks - arr - moved;
+
+        RedrawMovables();
+
+        var red = sw.ElapsedTicks - arr - moved - castd;
+
+        sw.Stop();
+        Debug.Log(arr + "/" + moved + "/" + castd + "/" + red);
     }
 
     ///
@@ -144,11 +161,23 @@ public class Game : MonoBehaviour
         PlayerSpeedMultiplier = 1f;
         PlayerShootSpeed = 1f;
 
-        StartCoroutine(SpawnMeteorsCoroutine());
+        Movables.Add(new Meteor() { Position = new Vector2(100f, 100f), Direction = Vector2.zero });
+        //StartCoroutine(SpawnMeteorsCoroutine());
         StartCoroutine(RemoveParticlesCoroutine());
 
         IsAlive = true;
         IsPaused = false;
+
+        MovablesRenderer.material.SetVector("_Sizes", VectorToScreenPos(new Vector2(new Meteor().SizeX, new Bullet().SizeX) / 2f - MaxCanvasPos));
+        Screen.autorotateToLandscapeLeft = Screen.autorotateToLandscapeRight = Screen.autorotateToPortrait = Screen.autorotateToPortraitUpsideDown = true;
+
+        StartCoroutine(A());
+    }
+
+    IEnumerator A()
+    {
+        yield return new WaitForSeconds(2);
+        GameOver();
     }
 
     public void PauseGame()
@@ -189,6 +218,8 @@ public class Game : MonoBehaviour
         Player.gameObject.SetActive(false);
 
         RedrawMovables();
+
+        Screen.autorotateToLandscapeLeft = Screen.autorotateToLandscapeRight = Screen.autorotateToPortrait = Screen.autorotateToPortraitUpsideDown = true;
     }
 
     void RestartGame()
@@ -206,7 +237,7 @@ public class Game : MonoBehaviour
 
     void MoveMovables()
     {
-        foreach (var movable in Movables.ToArray())
+        foreach (var movable in _Movables)
         {
             if (Mathf.Abs(movable.Position.x) > MaxCanvasPos.x + 2f || Mathf.Abs(movable.Position.y) > MaxCanvasPos.y + 2f)
             {
@@ -218,27 +249,20 @@ public class Game : MonoBehaviour
         }
     }
 
-    bool Overlaps(Movable mov1, Movable mov2) => Overlaps(mov1, mov2.Position, new Vector2(mov2.SizeX, mov2.SizeY));
+    ///
 
-    bool Overlaps(Movable mov1, Vector2 center2, Vector2 size2)
+    bool Overlaps(Movable mov1, Movable mov2) => Overlaps(mov1.Position, mov1.SizeX, mov1.SizeY, mov2.Position, mov2.SizeX, mov2.SizeY);
+
+    bool Overlaps(Movable mov1, Vector2 center2, Vector2 size2) => Overlaps(mov1.Position, mov1.SizeX, mov1.SizeY, center2, size2.x, size2.y);
+
+    bool Overlaps(Vector2 center1, float size1X, float size1Y, Vector2 center2, float size2X, float size2Y)
     {
-        float minx1 = mov1.Position.x - mov1.SizeX / 2f;
-        float miny1 = mov1.Position.y - mov1.SizeY / 2f;
-        float minx2 = center2.x - size2.x / 2f;
-        float miny2 = center2.y - size2.y / 2f;
-
-        float maxx1 = mov1.Position.x + mov1.SizeX / 2f;
-        float maxy1 = mov1.Position.y + mov1.SizeY / 2f;
-        float maxx2 = center2.x + size2.x / 2f;
-        float maxy2 = center2.y + size2.y / 2f;
-
-        return maxx2 >= minx1 && minx2 <= maxx1 && maxy2 >= miny1 && miny2 <= maxy1;
+        var diff = center1 - center2;
+        return (Mathf.Abs(diff.x) < (size2X + size1X) / 2f) && (Mathf.Abs(diff.y) < (size2Y + size1Y) / 2f);
     }
 
     void CastColliders()
     {
-        _Movables = Movables.ToArray();
-
         for (int i = 0; i < _Movables.Length; i++)
         {
             _Movable1 = _Movables[i];
@@ -274,39 +298,48 @@ public class Game : MonoBehaviour
         }
     }
 
+    ///
+
+    Vector4 MovableToScreenPos(Movable x) => VectorToScreenPos(x.Position);
+
+    Vector4 VectorToScreenPos(Vector2 x) => (Vector4) ((x + MaxCanvasPos) / (MaxCanvasPos * 2f) * new Vector2(Screen.width, Screen.height));
+
     void RedrawMovables()
     {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+
         if (Movables.Count == 0)
         {
             MovablesRenderer.material.SetVector("_Counts", Vector2.zero);
             return;
         }
 
-        var meteors = Movables.Where(x => x is Meteor).Cast<Meteor>();
-        var bullets = Movables.Where(x => x is Bullet);
-        int meteorCount = meteors.Count();
+        var sw1 = sw.ElapsedTicks;
+
+        int meteorCount = Movables.Meteors.Count();
 
         MovablesRenderer.material.SetVector("_Counts", new Vector2(meteorCount, Movables.Count - meteorCount));
 
-        Vector4 Convert(Movable x) => Convertv(x.Position);
-        Vector4 Convertv(Vector2 x) => (Vector4) ((x + MaxCanvasPos) / (MaxCanvasPos * 2f) * new Vector2(Screen.width, Screen.height));
-
-        MovablesRenderer.material.SetVector("_Sizes", Convertv(new Vector2(new Meteor().SizeX, new Bullet().SizeX) / 2f - MaxCanvasPos));
+        var sw2 = sw.ElapsedTicks;
 
         if (meteorCount != 0)
         {
-            meteors.Select(x => Convert(x)).ToArray().CopyTo(_Meteors, 0);
+            Movables.Meteors.Select(x => MovableToScreenPos(x)).ToArray().CopyTo(_Meteors, 0);
             MovablesRenderer.material.SetVectorArray("_Meteors", _Meteors);
 
-            meteors.Select(x => x.Effect.Color).ToArray().CopyTo(_MeteorColors, 0);
+            Movables.Meteors.Select(x => x.Effect.Color).ToArray().CopyTo(_MeteorColors, 0);
             MovablesRenderer.material.SetColorArray("_MeteorColors", _MeteorColors);
         }
+        var sw3 = sw.ElapsedTicks;
 
-        if (bullets.Count() != 0)
+        if (Movables.Bullets.Count() != 0)
         {
-            bullets.Select(x => Convert(x)).ToArray().CopyTo(_Bullets, 0);
+            Movables.Bullets.Select(x => MovableToScreenPos(x)).ToArray().CopyTo(_Bullets, 0);
             MovablesRenderer.material.SetVectorArray("_Bullets", _Bullets);
         }
+
+        Debug.Log("REDRAW" + sw1 + "/" + sw2 + "/" + sw3);
+        sw.Stop();
     }
 
     ///
