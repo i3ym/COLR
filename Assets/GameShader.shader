@@ -45,13 +45,23 @@
 
             fixed4 frag (v2f v) : SV_Target
             {
+                float2 movable;
+
                 for (int i = 0; i < _Counts.x; i++)
-                    if (_Meteors[i].x + _Sizes.x > v.vertex.x && _Meteors[i].x - _Sizes.x < v.vertex.x && _Meteors[i].y + _Sizes.x > v.vertex.y && _Meteors[i].y - _Sizes.x < v.vertex.y)
+                {
+                    movable = _Meteors[i];
+
+                    if (movable.x + _Sizes.x > v.vertex.x && movable.x - _Sizes.x < v.vertex.x && movable.y + _Sizes.x > v.vertex.y && movable.y - _Sizes.x < v.vertex.y)
                         return _MeteorColors[i];
+                }
                         
                 for (int i = 0; i < _Counts.y; i++)
-                    if (_Bullets[i].x + _Sizes.y > v.vertex.x && _Bullets[i].x - _Sizes.y < v.vertex.x && _Bullets[i].y + _Sizes.y > v.vertex.y && _Bullets[i].y - _Sizes.y < v.vertex.y)
+                {
+                    movable = _Bullets[i];
+
+                    if (movable.x + _Sizes.y > v.vertex.x && movable.x - _Sizes.y < v.vertex.x && movable.y + _Sizes.y > v.vertex.y && movable.y - _Sizes.y < v.vertex.y)
                         return float4(1, 1, 1, 1);
+                }
 
                 discard;
                 return float4(0, 0, 0, 1);

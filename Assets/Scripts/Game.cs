@@ -149,8 +149,8 @@ public class Game : MonoBehaviour
         PlayerSpeedMultiplier = 1f;
         PlayerShootSpeed = 1f;
 
-        Movables.Add(new Meteor() { Position = new Vector2(100f, 100f), Direction = Vector2.zero });
-        //StartCoroutine(SpawnMeteorsCoroutine());
+        // Movables.Add(new Meteor() { Position = new Vector2(100f, 100f), Direction = Vector2.zero });
+        StartCoroutine(SpawnMeteorsCoroutine());
         StartCoroutine(RemoveParticlesCoroutine());
 
         IsAlive = true;
@@ -159,10 +159,10 @@ public class Game : MonoBehaviour
         MovablesRenderer.material.SetVector("_Sizes", VectorToScreenPos(new Vector2(new Meteor().SizeX, new Bullet().SizeX) / 2f - MaxCanvasPos));
         Screen.autorotateToLandscapeLeft = Screen.autorotateToLandscapeRight = Screen.autorotateToPortrait = Screen.autorotateToPortraitUpsideDown = true;
 
-        StartCoroutine(A());
+        // StartCoroutine(PerformanceTestDeath());
     }
 
-    IEnumerator A()
+    IEnumerator PerformanceTestDeath()
     {
         yield return new WaitForSeconds(2);
         GameOver();
@@ -300,27 +300,20 @@ public class Game : MonoBehaviour
     void RedrawMovables()
     {
         var meteorCount = Movables.Meteors.Count;
-        var bulletCount = Movables.Meteors.Count;
 
         if (Movables.Count == 0)
         {
-            if (meteorCount != _LastMeteorsCount || bulletCount != _LastBulletsCount)
-            {
-                _LastMeteorsCount = meteorCount;
-                _LastBulletsCount = bulletCount;
-
-                MovablesRenderer.material.SetVector("_Counts", new Vector2(meteorCount, bulletCount));
-            }
+            MovablesRenderer.material.SetVector("_Counts", Vector2.zero);
             return;
         }
 
-        if (meteorCount != _LastMeteorsCount || bulletCount != _LastBulletsCount)
-        {
-            _LastMeteorsCount = meteorCount;
-            _LastBulletsCount = bulletCount;
+        var bulletCount = Movables.Bullets.Count;
 
+        if (meteorCount != _LastMeteorsCount || bulletCount != _LastBulletsCount)
             MovablesRenderer.material.SetVector("_Counts", new Vector2(meteorCount, bulletCount));
-        }
+
+        _LastMeteorsCount = meteorCount;
+        _LastBulletsCount = bulletCount;
 
         if (meteorCount != 0)
         {
