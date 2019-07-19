@@ -16,7 +16,7 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
-        Prefs.UpdateCameraPrefs(Camera.main);
+        Game.Prefs.Update();
 
         StartGameButton.onClick.AddListener(() =>
         {

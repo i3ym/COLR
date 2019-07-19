@@ -12,6 +12,7 @@ public class Game : MonoBehaviour
 {
     public static Game game;
     public static Camera Camera;
+    public static Prefs Prefs;
     public static bool IsAlive { get; private set; }
     public static bool IsPaused { get; private set; }
     public static bool IsPlaying { get => IsAlive && !IsPaused; }
@@ -113,35 +114,21 @@ public class Game : MonoBehaviour
     ///
 
     public void SaveSettings() =>
-        File.WriteAllLines(Path.Combine(Application.persistentDataPath, "config.cfg"), new string[]
-        {
-            Highscore.ToString(), Prefs.Bloom.ToString(), Prefs.Chroma.ToString(), Prefs.Grain.ToString(), Prefs.Lens.ToString(),
-                (Music.volume * 100f).ToString(), (Player.ShootSound.volume * 100f).ToString(), ((int) Prefs.Lang).ToString()
-        });
+        File.WriteAllText(Path.Combine(Application.persistentDataPath, "config.cfg"), JsonUtility.ToJson(Prefs));
 
     public void LoadSettings()
     {
-        if (!File.Exists(Path.Combine(Application.persistentDataPath, "config.cfg"))) return;
+        Prefs = new Prefs();
 
-        var cfg = File.ReadAllLines(Path.Combine(Application.persistentDataPath, "config.cfg"));
+        if (!File.Exists(Path.Combine(Application.persistentDataPath, "config.cfg"))) return;
 
         try
         {
-            Highscore = int.Parse(cfg[0]);
-            Prefs.Bloom = bool.Parse(cfg[1]);
-            Prefs.Chroma = bool.Parse(cfg[2]);
-            Prefs.Grain = bool.Parse(cfg[3]);
-            Prefs.Lens = bool.Parse(cfg[4]);
-
-            Music.volume = float.Parse(cfg[5]) / 100f;
-            Player.ShootSound.volume = float.Parse(cfg[6]) / 100f;
-
-            Prefs.Lang = (Language) int.Parse(cfg[7]);
-            SetLanguage(Prefs.Lang);
+            Prefs = JsonUtility.FromJson<Prefs>(File.ReadAllText(Path.Combine(Application.persistentDataPath, "config.cfg")));
         }
         catch { }
 
-        Prefs.UpdateCameraPrefs(Camera);
+        Prefs.Update();
     }
 
     ///
@@ -357,6 +344,8 @@ public class Game : MonoBehaviour
 
     public void PlayDeathParticle(Vector2 canvasPosition, Color color)
     {
+        if (!Prefs.Particles) return;
+
         if (Mathf.Abs(canvasPosition.x) > MaxCanvasPos.x || Mathf.Abs(canvasPosition.y) > MaxCanvasPos.y) return;
 
         ParticleSystem dp;

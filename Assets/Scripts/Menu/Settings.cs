@@ -9,11 +9,13 @@ public class Settings : MonoBehaviour
     [SerializeField]
     Button GraphicsButton = null, LanguageButton = null, AudioButton = null, BackButton = null;
     [SerializeField]
-    Button GraphicsBloomButton = null, GraphicsGrainButton = null, GraphicsChromaButton = null, GraphicsLensButton = null, GraphicsBackButton = null;
+    Button GraphicsBloomButton = null, GraphicsGrainButton = null, GraphicsChromaButton = null, GraphicsLensButton = null, GraphicsBackButton = null, GraphicsParticlesButton = null;
     [SerializeField]
     Slider AudioMusicSlider = null, AudioSoundsSlider = null;
     [SerializeField]
     Button AudioBackButton = null;
+
+    static Prefs Prefs { get => Game.Prefs; }
 
     void Start()
     {
@@ -51,6 +53,7 @@ public class Settings : MonoBehaviour
         GraphicsGrainButton.onClick.AddListener(() => TurnOption(ref Prefs.Grain));
         GraphicsChromaButton.onClick.AddListener(() => TurnOption(ref Prefs.Chroma));
         GraphicsLensButton.onClick.AddListener(() => TurnOption(ref Prefs.Lens));
+        GraphicsParticlesButton.onClick.AddListener(() => TurnOption(ref Prefs.Particles));
 
         ///
 
@@ -60,20 +63,21 @@ public class Settings : MonoBehaviour
             Graphics.SetActive(false);
         });
 
-        AudioMusicSlider.onValueChanged.AddListener((value) => Game.game.Music.volume = value);
-        AudioSoundsSlider.onValueChanged.AddListener((value) => Game.game.Player.ShootSound.volume = value);
-
+        AudioMusicSlider.onValueChanged.AddListener((value) => Game.game.Music.volume = Prefs.MusicVolume = value);
+        AudioSoundsSlider.onValueChanged.AddListener((value) => Game.game.Player.ShootSound.volume = Prefs.SoundsVolume = value);
         AudioBackButton.onClick.AddListener(() =>
         {
             SettingsObj.SetActive(true);
             Audio.SetActive(false);
+
+            Game.game.SaveSettings();
         });
     }
 
     static void TurnOption(ref bool opt)
     {
         opt = !opt;
-        Prefs.UpdateCameraPrefs(Game.Camera);
+        Prefs.Update();
 
         Game.game.SaveSettings();
     }

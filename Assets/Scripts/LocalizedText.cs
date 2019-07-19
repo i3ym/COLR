@@ -24,6 +24,10 @@ public class LocalizedText : MonoBehaviour
 
         Translations.Add("audiomenu.Music", new Translation((Language.Russian, "Музыка"), (Language.English, "Music")));
         Translations.Add("audiomenu.Sounds", new Translation((Language.Russian, "Звуки"), (Language.English, "Sounds")));
+        
+        Translations.Add("graphicsmenu.Bloom", new Translation((Language.Russian, "Свечение"), (Language.English, "Bloom")));
+        Translations.Add("graphicsmenu.Grain", new Translation((Language.Russian, "Шум"), (Language.English, "Grain")));
+        Translations.Add("graphicsmenu.Particles", new Translation((Language.Russian, "Частицы"), (Language.English, "Particles")));
 
         Translations.Add("menu.Back", new Translation((Language.Russian, "Назад"), (Language.English, "Back")));
         
