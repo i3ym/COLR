@@ -7,13 +7,13 @@ public class Settings : MonoBehaviour
     [SerializeField]
     GameObject SettingsObj = null, MainMenu = null, Graphics = null, Audio = null;
     [SerializeField]
-    Button GraphicsButton = null, LanguageButton = null, AudioButton = null, BackButton = null;
+    Button GraphicsButton = null, LanguageButton = null, AudioButton = null;
     [SerializeField]
-    Button GraphicsBloomButton = null, GraphicsGrainButton = null, GraphicsChromaButton = null, GraphicsLensButton = null, GraphicsBackButton = null, GraphicsParticlesButton = null;
+    ColrToggle GraphicsBloomButton = null, GraphicsGrainButton = null, GraphicsChromaButton = null, GraphicsLensButton = null, GraphicsParticlesButton = null;
     [SerializeField]
     Slider AudioMusicSlider = null, AudioSoundsSlider = null;
     [SerializeField]
-    Button AudioBackButton = null;
+    Button BackButton = null, GraphicsBackButton = null, AudioBackButton = null;
 
     static Prefs Prefs { get => Game.Prefs; }
 
@@ -49,11 +49,11 @@ public class Settings : MonoBehaviour
 
         ///
 
-        GraphicsBloomButton.onClick.AddListener(() => TurnOption(ref Prefs.Bloom));
-        GraphicsGrainButton.onClick.AddListener(() => TurnOption(ref Prefs.Grain));
-        GraphicsChromaButton.onClick.AddListener(() => TurnOption(ref Prefs.Chroma));
-        GraphicsLensButton.onClick.AddListener(() => TurnOption(ref Prefs.Lens));
-        GraphicsParticlesButton.onClick.AddListener(() => TurnOption(ref Prefs.Particles));
+        GraphicsBloomButton.Button.onClick.AddListener(() => TurnOption(ref Prefs.Bloom));
+        GraphicsGrainButton.Button.onClick.AddListener(() => TurnOption(ref Prefs.Grain));
+        GraphicsChromaButton.Button.onClick.AddListener(() => TurnOption(ref Prefs.Chroma));
+        GraphicsLensButton.Button.onClick.AddListener(() => TurnOption(ref Prefs.Lens));
+        GraphicsParticlesButton.Button.onClick.AddListener(() => TurnOption(ref Prefs.Particles));
 
         ///
 

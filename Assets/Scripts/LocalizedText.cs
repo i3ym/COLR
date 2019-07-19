@@ -27,6 +27,8 @@ public class LocalizedText : MonoBehaviour
         
         Translations.Add("graphicsmenu.Bloom", new Translation((Language.Russian, "Свечение"), (Language.English, "Bloom")));
         Translations.Add("graphicsmenu.Grain", new Translation((Language.Russian, "Шум"), (Language.English, "Grain")));
+        Translations.Add("graphicsmenu.Lens", new Translation((Language.Russian, "Искривление"), (Language.English, "Lens")));
+        Translations.Add("graphicsmenu.Chroma", new Translation((Language.Russian, "Chroma"), (Language.English, "Chroma")));
         Translations.Add("graphicsmenu.Particles", new Translation((Language.Russian, "Частицы"), (Language.English, "Particles")));
 
         Translations.Add("menu.Back", new Translation((Language.Russian, "Назад"), (Language.English, "Back")));
@@ -58,7 +60,7 @@ public class LocalizedText : MonoBehaviour
         if (Translations.ContainsKey(textID) && Translations[textID].ContainsKey(lang))
             return Translations[textID][lang];
 
-        Debug.LogError("Could not found translation for TextID: '" + textID + "', Language: '" + lang.ToString() + "'");
+        Debug.LogWarning("Could not found translation for TextID: '" + textID + "', Language: '" + lang.ToString() + "'");
         return textID;
     }
 }
