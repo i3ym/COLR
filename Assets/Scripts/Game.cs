@@ -42,8 +42,6 @@ public class Game : MonoBehaviour
     MainMenu MainMenu = null;
     [SerializeField]
     public AudioSource Music = null;
-    [SerializeField]
-    RawImage MovablesRenderer = null;
 
     Vector4[] _Meteors = new Vector4[100];
     Color[] _MeteorColors = new Color[100];
@@ -88,27 +86,10 @@ public class Game : MonoBehaviour
     {
         if (!Game.IsPlaying) return;
 
-        var sw = System.Diagnostics.Stopwatch.StartNew();
-
         Score++;
         _Movables = Movables.ToArray();
 
-        var arr = sw.ElapsedTicks;
-
         MoveMovables();
-
-        var moved = sw.ElapsedTicks - arr;
-
-        CastColliders();
-
-        var castd = sw.ElapsedTicks - arr - moved;
-
-        RedrawMovables();
-
-        var red = sw.ElapsedTicks - arr - moved - castd;
-
-        sw.Stop();
-        Debug.Log(arr + "/" + moved + "/" + castd + "/" + red);
     }
 
     ///
@@ -156,7 +137,6 @@ public class Game : MonoBehaviour
         IsAlive = true;
         IsPaused = false;
 
-        MovablesRenderer.material.SetVector("_Sizes", VectorToScreenPos(new Vector2(new Meteor().SizeX, new Bullet().SizeX) / 2f - MaxCanvasPos));
         Screen.autorotateToLandscapeLeft = Screen.autorotateToLandscapeRight = Screen.autorotateToPortrait = Screen.autorotateToPortraitUpsideDown = true;
 
         // StartCoroutine(PerformanceTestDeath());
@@ -188,6 +168,10 @@ public class Game : MonoBehaviour
 
         IsAlive = false;
 
+        foreach (var movable in Movables)
+            if (movable)
+                Destroy(movable.gameObject);
+
         Movables.Clear();
 
         if (Highscore < Score)
@@ -204,8 +188,6 @@ public class Game : MonoBehaviour
 
         PlayDeathParticle(Player.transform.position);
         Player.gameObject.SetActive(false);
-
-        RedrawMovables();
 
         Screen.autorotateToLandscapeLeft = Screen.autorotateToLandscapeRight = Screen.autorotateToPortrait = Screen.autorotateToPortraitUpsideDown = true;
     }
@@ -228,106 +210,13 @@ public class Game : MonoBehaviour
     {
         foreach (var movable in _Movables)
         {
-            if (Mathf.Abs(movable.Position.x) > MaxCanvasPos.x + 2f || Mathf.Abs(movable.Position.y) > MaxCanvasPos.y + 2f)
+            if (Mathf.Abs(movable.transform.anchoredPosition.x) > MaxCanvasPos.x + 2f || Mathf.Abs(movable.transform.anchoredPosition.y) > MaxCanvasPos.y + 2f)
             {
                 movable.Death();
                 continue;
             }
 
-            movable.Position += movable.Direction;
-        }
-    }
-
-    ///
-
-    [MethodImpl(256)]
-    bool Overlaps(Movable mov1, Movable mov2) => Overlaps(mov1.Position, mov1.SizeX, mov1.SizeY, mov2.Position, mov2.SizeX, mov2.SizeY);
-
-    [MethodImpl(256)]
-    bool Overlaps(Movable mov1, Vector2 center2, Vector2 size2) => Overlaps(mov1.Position, mov1.SizeX, mov1.SizeY, center2, size2.x, size2.y);
-
-    [MethodImpl(256)]
-    bool Overlaps(Vector2 center1, float size1X, float size1Y, Vector2 center2, float size2X, float size2Y)
-    {
-        var diff = center1 - center2;
-        return (Mathf.Abs(diff.x) < (size2X + size1X) / 2f) && (Mathf.Abs(diff.y) < (size2Y + size1Y) / 2f);
-    }
-
-    [MethodImpl(256)]
-    void CastColliders()
-    {
-        for (int i = 0; i < _Movables.Length; i++)
-        {
-            _Movable1 = _Movables[i];
-
-            if (!_Movable1.IsAlive) continue;
-
-            if (_Movable1 is Meteor)
-            {
-                if (Overlaps(_Movable1, Player.transform.anchoredPosition, Player.transform.rect.size) ||
-                    Overlaps(_Movable1, Player.OffScreen.shadowGO.anchoredPosition, Player.OffScreen.shadowGO.rect.size))
-                {
-                    (_Movable1 as Meteor).Effect.PlayEffect();
-                    _Movable1.Death();
-
-                    return;
-                }
-            }
-
-            for (int j = 0; j < _Movables.Length; j++)
-            {
-                _Movable2 = _Movables[j];
-
-                if (!_Movable2.IsAlive || _Movable1 == _Movable2) continue;
-
-                if (Overlaps(_Movable1, _Movable2))
-                {
-                    if (_Movable2 is Bullet && (_Movable1 as Meteor).EffectType != MeteorEffectType.None) (_Movable1 as Meteor).Effect.PlayEffect();
-
-                    _Movable1.Death();
-                    _Movable2.Death();
-                }
-            }
-        }
-    }
-
-    ///
-
-    Vector4 MovableToScreenPos(Movable x) => VectorToScreenPos(x.Position);
-
-    Vector4 VectorToScreenPos(Vector2 x) => (Vector4) ((x + MaxCanvasPos) / (MaxCanvasPos * 2f) * new Vector2(Screen.width, Screen.height));
-
-    void RedrawMovables()
-    {
-        var meteorCount = Movables.Meteors.Count;
-
-        if (Movables.Count == 0)
-        {
-            MovablesRenderer.material.SetVector("_Counts", Vector2.zero);
-            return;
-        }
-
-        var bulletCount = Movables.Bullets.Count;
-
-        if (meteorCount != _LastMeteorsCount || bulletCount != _LastBulletsCount)
-            MovablesRenderer.material.SetVector("_Counts", new Vector2(meteorCount, bulletCount));
-
-        _LastMeteorsCount = meteorCount;
-        _LastBulletsCount = bulletCount;
-
-        if (meteorCount != 0)
-        {
-            Movables.Meteors.Select(x => MovableToScreenPos(x)).ToArray().CopyTo(_Meteors, 0);
-            MovablesRenderer.material.SetVectorArray("_Meteors", _Meteors);
-
-            Movables.Meteors.Select(x => x.Effect.Color).ToArray().CopyTo(_MeteorColors, 0);
-            MovablesRenderer.material.SetColorArray("_MeteorColors", _MeteorColors);
-        }
-
-        if (bulletCount != 0)
-        {
-            Movables.Bullets.Select(x => MovableToScreenPos(x)).ToArray().CopyTo(_Bullets, 0);
-            MovablesRenderer.material.SetVectorArray("_Bullets", _Bullets);
+            movable.transform.anchoredPosition += movable.Direction;
         }
     }
 
@@ -364,8 +253,19 @@ public class Game : MonoBehaviour
 
     ///
 
-    public void Shoot() =>
-        Movables.Add(new Bullet() { Position = Player.transform.anchoredPosition, Direction = Player.transform.up * 5f });
+    public void Shoot()
+    {
+        var bulletgo = new GameObject("bullet", typeof(RectTransform), typeof(RawImage), typeof(BoxCollider2D));
+        var bullet = bulletgo.AddComponent<Bullet>();
+
+        bulletgo.GetComponent<BoxCollider2D>().size = bullet.transform.sizeDelta;
+        bulletgo.GetComponent<BoxCollider2D>().isTrigger = true;
+
+        bullet.transform.SetParent(transform, false);
+        bullet.transform.anchoredPosition = Player.transform.anchoredPosition;
+        bullet.Direction = Player.transform.up * 5f;
+        Movables.Add(bullet);
+    }
 
     IEnumerator SpawnMeteorsCoroutine()
     {
@@ -415,7 +315,17 @@ public class Game : MonoBehaviour
             _SpawnPos.x = -MaxCanvasPos.x;
         }
 
-        Meteor meteor = new Meteor() { Position = _SpawnPos, Direction = new Vector2(Random.value - .5f, Random.value - .5f).normalized * 5f };
+        var meteorgo = new GameObject("meteor", typeof(RectTransform), typeof(RawImage), typeof(BoxCollider2D));
+        var meteor = meteorgo.AddComponent<Meteor>();
+
+        meteorgo.GetComponent<BoxCollider2D>().size = meteor.transform.sizeDelta;
+        meteorgo.GetComponent<BoxCollider2D>().isTrigger = true;
+
+        meteor.transform.SetParent(transform, false);
+        meteor.transform.anchoredPosition = _SpawnPos;
+        meteor.Direction = new Vector2(Random.value - .5f, Random.value - .5f).normalized * 5f;
+
+        Movables.Add(meteor);
 
         /// assign a random effect
 

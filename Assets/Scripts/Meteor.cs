@@ -6,7 +6,7 @@ public class Meteor : Movable
     public override float SizeX => 30f;
     public override float SizeY => SizeX;
 
-    public MeteorEffect Effect { get => MeteorEffect.Effects[EffectType]; }
+    public MeteorEffect Effect => MeteorEffect.Effects[EffectType];
     public MeteorEffectType EffectType = MeteorEffectType.None;
 
     IEnumerator SpawnMeteorNextFixedFrameCoroutine()
@@ -20,8 +20,29 @@ public class Meteor : Movable
         base.Death();
 
         Effect.IsPlaying = false;
-        Game.game.PlayDeathParticle(Position, Effect.Color);
+        Game.game.PlayDeathParticle(transform.anchoredPosition, Effect.Color);
 
         if (Game.IsPlaying) Game.game.SpawnMeteorNextFrame();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        var movable = other.GetComponent<Movable>();
+
+        if (movable)
+        {
+            Death();
+            movable.Death();
+        }
+        else
+        {
+            var player = other.GetComponent<Player>();
+
+            if (player)
+            {
+                Effect.PlayEffect();
+                Death();
+            }
+        }
     }
 }
